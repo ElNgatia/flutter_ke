@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile/services/validator_service/validator_service.dart';
+import 'package:mobile/core/core.dart';
 
 void main() {
   group('validator service tests ...', () {
@@ -8,9 +8,18 @@ void main() {
     });
     test('various email formats', () {
       expect(ValidatorService.emailFormatValidator('user@gmail.com'), isNull);
-      expect(ValidatorService.emailFormatValidator('user.name@gmail.com'), isNull);
-      expect(ValidatorService.emailFormatValidator('user123.name@gmail.com'), isNull);
-      expect(ValidatorService.emailFormatValidator('user123.name.21@gmail.com'), isNull);
+      expect(
+        ValidatorService.emailFormatValidator('user.name@gmail.com'),
+        isNull,
+      );
+      expect(
+        ValidatorService.emailFormatValidator('user123.name@gmail.com'),
+        isNull,
+      );
+      expect(
+        ValidatorService.emailFormatValidator('user123.name.21@gmail.com'),
+        isNull,
+      );
     });
   });
 }

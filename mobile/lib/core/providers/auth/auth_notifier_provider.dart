@@ -1,6 +1,7 @@
-import 'package:mobile/repositories/auth_repository/auth_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../core.dart';
 
 part 'auth_notifier_provider.g.dart';
 

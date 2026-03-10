@@ -7,9 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/experimental/mutation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobile/router/app_router.gr.dart';
-import 'package:mobile/providers/auth/auth_notifier_provider.dart';
-import 'package:mobile/services/validator_service/validator_service.dart';
+
+import '../../../core/core.dart';
 
 @RoutePage()
 class SignUpPage extends StatelessWidget {

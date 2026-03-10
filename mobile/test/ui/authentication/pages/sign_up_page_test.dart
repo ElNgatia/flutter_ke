@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobile/repositories/auth_repository/auth_repository.dart';
-import 'package:mobile/router/app_router.dart';
-import 'package:mobile/router/app_router.gr.dart';
+import 'package:mobile/core/core.dart';
 import 'package:mobile/ui/home/pages/home_page.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -14,22 +12,22 @@ void main() {
   late AppRouter router;
 
   Future<void> pumpSignUpPage(WidgetTester tester) async {
-    
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          authRepositoryProvider.overrideWith((ref) async => mockAuthRepository),
+          authRepositoryProvider.overrideWith(
+            (ref) async => mockAuthRepository,
+          ),
         ],
         child: MaterialApp.router(routerConfig: router.config()),
       ),
     );
-    
+
     await tester.pumpAndSettle();
-    
+
     router.push(const SignUpRoute());
-    
+
     await tester.pumpAndSettle();
-    
   }
 
   setUp(() {
@@ -37,7 +35,9 @@ void main() {
     router = AppRouter();
 
     when(() => mockAuthRepository.currentUser()).thenReturn(null);
-    when(() => mockAuthRepository.userStream()).thenAnswer((_) => Stream.empty());
+    when(
+      () => mockAuthRepository.userStream(),
+    ).thenAnswer((_) => Stream.empty());
     when(
       () => mockAuthRepository.signUpWithEmailAndPassword(
         email: any(named: 'email'),
@@ -47,14 +47,15 @@ void main() {
   });
 
   testWidgets('renders sign up form fields and CTA', (tester) async {
-    
     await pumpSignUpPage(tester);
-    
 
     expect(find.text('Sign Up'), findsOneWidget);
     expect(find.byKey(const ValueKey('sign_up_email')), findsOneWidget);
     expect(find.byKey(const ValueKey('sign_up_password')), findsOneWidget);
-    expect(find.byKey(const ValueKey('sign_up_confirm_password')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('sign_up_confirm_password')),
+      findsOneWidget,
+    );
     expect(find.widgetWithText(FilledButton, 'Sign up'), findsOneWidget);
   });
 
@@ -78,7 +79,10 @@ void main() {
   testWidgets('shows invalid email message', (tester) async {
     await pumpSignUpPage(tester);
 
-    await tester.enterText(find.byKey(const ValueKey('sign_up_email')), 'invalid');
+    await tester.enterText(
+      find.byKey(const ValueKey('sign_up_email')),
+      'invalid',
+    );
     await tester.enterText(
       find.byKey(const ValueKey('sign_up_password')),
       'password123',
@@ -128,7 +132,9 @@ void main() {
     );
   });
 
-  testWidgets('submits with valid values and navigates to home', (tester) async {
+  testWidgets('submits with valid values and navigates to home', (
+    tester,
+  ) async {
     await pumpSignUpPage(tester);
 
     await tester.enterText(
@@ -153,7 +159,10 @@ void main() {
         password: 'password123',
       ),
     ).called(1);
-    expect(find.byWidgetPredicate((widget) => widget is HomePage), findsOneWidget);
+    expect(
+      find.byWidgetPredicate((widget) => widget is HomePage),
+      findsOneWidget,
+    );
   });
 
   testWidgets('shows snackbar when sign up fails', (tester) async {
