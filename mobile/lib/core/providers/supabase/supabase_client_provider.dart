@@ -10,10 +10,16 @@ Future<SupabaseClient> supabaseClient(Ref ref) async {
   final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'];
 
   if (supabaseURL == null) {
-    throw Exception('supabaseURL is missing.\nPlease pass it through an env file with the key SUPABASE_URL');
+    throw Exception(
+      'supabaseURL is missing.\nPlease pass it through an env file with the '
+      'key SUPABASE_URL',
+    );
   }
   if (supabaseAnonKey == null) {
-    throw Exception('supabase anon key is missing.\nPlease pass it through an env file with the key SUPABASE_ANON_KEY');
+    throw Exception(
+      'supabase anon key is missing.\nPlease pass it through an env file with '
+      'the key SUPABASE_ANON_KEY',
+    );
   }
 
   ref.keepAlive();
@@ -22,6 +28,6 @@ Future<SupabaseClient> supabaseClient(Ref ref) async {
     url: supabaseURL,
     anonKey: supabaseAnonKey,
   );
-  
+
   return supabase.client;
 }

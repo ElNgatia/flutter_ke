@@ -1,7 +1,6 @@
+import 'package:mobile/core/core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-import '../../core.dart';
 
 part 'auth_repository.g.dart';
 
@@ -25,7 +24,7 @@ class AuthRepository {
       return response.session;
     } on AuthException catch (e) {
       throw AuthRepositoryException(e.message);
-    } catch (e) {
+    } on Exception catch (_) {
       throw AuthRepositoryException('An unexpected error occurred');
     }
   }
@@ -39,7 +38,7 @@ class AuthRepository {
       return response.session;
     } on AuthException catch (e) {
       throw AuthRepositoryException(e.message);
-    } catch (e) {
+    } on Exception catch (_) {
       throw AuthRepositoryException('An unexpected error occurred');
     }
   }
@@ -49,16 +48,15 @@ class AuthRepository {
       await client.signOut();
     } on AuthException catch (e) {
       throw AuthRepositoryException(e.message);
-    } catch (e) {
+    } on Exception catch (_) {
       throw AuthRepositoryException('An unexpected error occurred');
     }
   }
 }
 
 class AuthRepositoryException implements Exception {
-  final String message;
-
   AuthRepositoryException(this.message);
+  final String message;
 
   @override
   String toString() => message;

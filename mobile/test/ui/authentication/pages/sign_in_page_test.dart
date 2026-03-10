@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -25,7 +27,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    router.push(const SignInRoute());
+    unawaited(router.push(const SignInRoute()));
 
     await tester.pumpAndSettle();
   }
@@ -37,7 +39,7 @@ void main() {
     when(() => mockAuthRepository.currentUser()).thenReturn(null);
     when(
       () => mockAuthRepository.userStream(),
-    ).thenAnswer((_) => Stream.empty());
+    ).thenAnswer((_) => const Stream.empty());
     when(
       () => mockAuthRepository.signInWithEmailAndPassword(
         email: any(named: 'email'),

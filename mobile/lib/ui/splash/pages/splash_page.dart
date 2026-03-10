@@ -1,8 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../../../core/core.dart';
+import 'package:mobile/core/core.dart';
 
 @RoutePage()
 class SplashPage extends ConsumerWidget {
@@ -10,15 +9,16 @@ class SplashPage extends ConsumerWidget {
 
   static const path = '/';
 
-  void authListener(BuildContext context, AsyncValue currentValue) {
+  void authListener(BuildContext context, AsyncValue<dynamic> currentValue) {
     switch (currentValue) {
       case AsyncLoading():
         return;
+      // This private field will be used later.
       // ignore: unused_local_variable
       case AsyncData(:final value?):
-        context.replaceRoute(HomeRoute());
+        context.replaceRoute(const HomeRoute());
       default:
-        context.replaceRoute(SignUpRoute());
+        context.replaceRoute(const SignUpRoute());
     }
   }
 

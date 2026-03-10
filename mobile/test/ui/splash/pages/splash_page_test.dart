@@ -45,7 +45,7 @@ void main() {
     router = AppRouter();
     when(
       () => mockAuthRepository.userStream(),
-    ).thenAnswer((_) => Stream.empty());
+    ).thenAnswer((_) => const Stream.empty());
   });
 
   testWidgets('renders splash content', (tester) async {

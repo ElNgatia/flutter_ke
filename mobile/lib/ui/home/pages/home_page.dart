@@ -9,9 +9,10 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
-    return  Scaffold(
-      appBar: AppBar(title: Text('Flutter Ke'),),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Flutter Ke'),
+      ),
     );
   }
 }

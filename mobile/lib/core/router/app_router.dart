@@ -1,10 +1,9 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:mobile/core/core.dart';
 import 'package:mobile/ui/authentication/pages/sign_in_page.dart';
 import 'package:mobile/ui/authentication/pages/sign_up_page.dart';
 import 'package:mobile/ui/home/pages/home_page.dart';
 import 'package:mobile/ui/splash/pages/splash_page.dart';
-
-import '../core.dart';
 
 @AutoRouterConfig()
 class AppRouter extends RootStackRouter {

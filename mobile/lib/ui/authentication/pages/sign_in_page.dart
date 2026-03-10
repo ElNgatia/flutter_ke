@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:auto_route/auto_route.dart';
@@ -7,8 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/experimental/mutation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-
-import '../../../core/core.dart';
+import 'package:mobile/core/core.dart';
 
 @RoutePage()
 class SignInPage extends StatelessWidget {
@@ -21,7 +21,7 @@ class SignInPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Flutter Kenya')),
       body: Container(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         alignment: Alignment.center,
         child: const SignInForm(),
       ),
@@ -29,7 +29,7 @@ class SignInPage extends StatelessWidget {
   }
 }
 
-final _signInMutation = Mutation();
+final Mutation<dynamic> _signInMutation = Mutation();
 
 class SignInForm extends HookConsumerWidget {
   const SignInForm({super.key});
@@ -39,20 +39,20 @@ class SignInForm extends HookConsumerWidget {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
 
-    ValueNotifier<bool> obscurePassword = useState(true);
+    final obscurePassword = useState(true);
 
     final emailController = useTextEditingController();
     final passwordController = useTextEditingController();
     final formKey = useMemoized(GlobalKey<FormState>.new);
 
-    final minPasswordLength = 8;
+    const minPasswordLength = 8;
 
     Future<void> submit() async {
       if (formKey.currentState?.validate() ?? false) {
         final email = emailController.text.trim();
         final password = passwordController.text.trim();
 
-        _signInMutation.run(ref, (tsx) async {
+        await _signInMutation.run(ref, (tsx) async {
           TextInput.finishAutofillContext();
           final scaffoldMessenger = ScaffoldMessenger.of(context);
           final router = context.router;
@@ -64,8 +64,8 @@ class SignInForm extends HookConsumerWidget {
               password: password,
             );
 
-            router.replace(HomeRoute());
-          } catch (e, stackTrace) {
+            unawaited(router.replace(const HomeRoute()));
+          } on Exception catch (e, stackTrace) {
             log(
               'Error signing in',
               error: e,
@@ -106,7 +106,6 @@ class SignInForm extends HookConsumerWidget {
                   autofocus: true,
                   textInputAction: TextInputAction.next,
                   autofillHints: const [AutofillHints.email],
-                  textCapitalization: TextCapitalization.none,
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) {
                       return 'Email is required';
@@ -134,7 +133,8 @@ class SignInForm extends HookConsumerWidget {
                       return 'Password is required';
                     }
                     if (v.length < minPasswordLength) {
-                      return 'Password must be at least $minPasswordLength characters';
+                      return 'Password must be at least $minPasswordLength '
+                          'characters';
                     }
                     return null;
                   },
@@ -165,7 +165,7 @@ class SignInForm extends HookConsumerWidget {
             child: FilledButton(
               onPressed: switch (signInState) {
                 MutationPending() => null,
-                _ => () => submit(),
+                _ => submit,
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -191,7 +191,7 @@ class SignInForm extends HookConsumerWidget {
                     text: 'Sign Up',
                     style: TextStyle(color: theme.colorScheme.primary),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => context.replaceRoute(SignUpRoute()),
+                      ..onTap = () => context.replaceRoute(const SignUpRoute()),
                   ),
                 ],
               ),

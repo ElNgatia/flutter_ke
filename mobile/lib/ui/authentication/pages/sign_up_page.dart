@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:auto_route/auto_route.dart';
@@ -7,8 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/experimental/mutation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-
-import '../../../core/core.dart';
+import 'package:mobile/core/core.dart';
 
 @RoutePage()
 class SignUpPage extends StatelessWidget {
@@ -21,7 +21,7 @@ class SignUpPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Flutter Kenya')),
       body: Container(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         alignment: Alignment.center,
         child: const SignUpForm(),
       ),
@@ -29,7 +29,7 @@ class SignUpPage extends StatelessWidget {
   }
 }
 
-final _signUpMutation = Mutation();
+final Mutation<dynamic> _signUpMutation = Mutation();
 
 class SignUpForm extends HookConsumerWidget {
   const SignUpForm({super.key});
@@ -55,7 +55,7 @@ class SignUpForm extends HookConsumerWidget {
         final email = emailController.text.trim();
         final password = passwordController.text.trim();
 
-        _signUpMutation.run(ref, (tsx) async {
+        await _signUpMutation.run(ref, (tsx) async {
           TextInput.finishAutofillContext();
           final authNotifier = tsx.get(authProvider.notifier);
           final scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -66,8 +66,8 @@ class SignUpForm extends HookConsumerWidget {
               email: email,
               password: password,
             );
-            router.replace(HomeRoute());
-          } catch (e, stackTrace) {
+            unawaited(router.replace(const HomeRoute()));
+          } on Exception catch (e, stackTrace) {
             log(
               'Error signing up',
               error: e,
@@ -108,7 +108,6 @@ class SignUpForm extends HookConsumerWidget {
                     autofocus: true,
                     textInputAction: TextInputAction.next,
                     autofillHints: const [AutofillHints.email],
-                    textCapitalization: TextCapitalization.none,
                     validator: (v) {
                       if (v == null || v.trim().isEmpty) {
                         return 'Email is required';
@@ -135,7 +134,8 @@ class SignUpForm extends HookConsumerWidget {
                         return 'Password is required';
                       }
                       if (v.length < minPasswordLength) {
-                        return 'Password must be at least $minPasswordLength characters';
+                        return 'Password must be at least $minPasswordLength '
+                            'characters';
                       }
                       return null;
                     },
@@ -205,7 +205,7 @@ class SignUpForm extends HookConsumerWidget {
               child: FilledButton(
                 onPressed: switch (signUpState) {
                   MutationPending() => null,
-                  _ => () => submit(),
+                  _ => submit,
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -231,7 +231,8 @@ class SignUpForm extends HookConsumerWidget {
                       text: 'Sign In',
                       style: TextStyle(color: theme.colorScheme.primary),
                       recognizer: TapGestureRecognizer()
-                        ..onTap = () => context.replaceRoute(SignInRoute()),
+                        ..onTap = () =>
+                            context.replaceRoute(const SignInRoute()),
                     ),
                   ],
                 ),
