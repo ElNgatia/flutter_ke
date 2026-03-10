@@ -100,6 +100,7 @@ https://ixafrica.co.ke/careers/it-intern-data-centre-operations-6-month-internsh
         children: [
           Expanded(
             child: ListView(
+              physics: const BouncingScrollPhysics(),
               reverse: true,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
               children: [
