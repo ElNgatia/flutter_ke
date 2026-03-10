@@ -46,4 +46,4 @@ final class SupabaseClientProvider
   }
 }
 
-String _$supabaseClientHash() => r'386be8e721b8a7674e98e6c6256b113f7b8c4852';
+String _$supabaseClientHash() => r'9b4b67ce2e3a19eea3a162c66a4d7a5ea6c05ec7';
