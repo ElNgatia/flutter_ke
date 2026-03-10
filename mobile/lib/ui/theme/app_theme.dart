@@ -19,10 +19,13 @@ import 'package:flutter/material.dart';
 abstract final class AppTheme {
   // The FlexColorScheme defined light mode ThemeData.
   static ThemeData light = FlexThemeData.light(
+    scaffoldBackground: const Color(0xff15112b),
+    appBarBackground: const Color(0xff15112b),
     // Playground built-in scheme made with FlexSchemeColor.from() API.
     colors: FlexSchemeColor.from(
       primary: const Color(0xFF1145A4),
       secondary: const Color(0xFFB61D1D),
+      tertiary: Colors.deepPurpleAccent,
       brightness: Brightness.light,
       swapOnMaterial3: true,
     ),

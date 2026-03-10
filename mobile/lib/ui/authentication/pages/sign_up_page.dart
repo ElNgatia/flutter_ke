@@ -95,13 +95,17 @@ class SignUpForm extends HookConsumerWidget {
           children: [
             Semantics(
               header: true,
-              child: Text('Sign Up', style: textTheme.titleLarge),
+              child: Text(
+                'Sign Up',
+                style: textTheme.titleLarge?.copyWith(color: Colors.white),
+              ),
             ),
             const SizedBox(height: 32),
             AutofillGroup(
               child: Column(
                 children: [
                   TextFormField(
+                    style: const TextStyle(color: Colors.white),
                     controller: emailController,
                     key: const ValueKey('sign_up_email'),
                     keyboardType: TextInputType.emailAddress,
@@ -117,10 +121,17 @@ class SignUpForm extends HookConsumerWidget {
                     decoration: const InputDecoration(
                       labelText: 'Email',
                       hintText: 'example@gmail.com',
+                      floatingLabelStyle: TextStyle(
+                        color: Colors.deepPurpleAccent,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.deepPurpleAccent),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
+                    style: const TextStyle(color: Colors.white),
                     controller: passwordController,
                     key: const ValueKey('sign_up_password'),
                     keyboardType: TextInputType.visiblePassword,
@@ -142,6 +153,12 @@ class SignUpForm extends HookConsumerWidget {
                     decoration: InputDecoration(
                       labelText: 'Password',
                       hintText: '********',
+                      floatingLabelStyle: const TextStyle(
+                        color: Colors.deepPurpleAccent,
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.deepPurpleAccent),
+                      ),
                       suffixIcon: IconButton(
                         icon: Icon(
                           obscurePassword.value
@@ -159,6 +176,7 @@ class SignUpForm extends HookConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
+                    style: const TextStyle(color: Colors.white),
                     controller: confirmPasswordController,
                     key: const ValueKey('sign_up_confirm_password'),
                     keyboardType: TextInputType.visiblePassword,
@@ -180,6 +198,12 @@ class SignUpForm extends HookConsumerWidget {
                     decoration: InputDecoration(
                       labelText: 'Confirm Password',
                       hintText: '********',
+                      floatingLabelStyle: const TextStyle(
+                        color: Colors.deepPurpleAccent,
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.deepPurpleAccent),
+                      ),
                       suffixIcon: IconButton(
                         icon: Icon(
                           obscureConfirmPassword.value
@@ -203,6 +227,11 @@ class SignUpForm extends HookConsumerWidget {
               width: double.infinity,
               height: 48,
               child: FilledButton(
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all(
+                    Colors.deepPurpleAccent,
+                  ),
+                ),
                 onPressed: switch (signUpState) {
                   MutationPending() => null,
                   _ => submit,
@@ -221,15 +250,14 @@ class SignUpForm extends HookConsumerWidget {
             ),
             const SizedBox(height: 24),
             Align(
-              alignment: Alignment.centerLeft,
               child: RichText(
                 text: TextSpan(
                   text: 'Already have an account? ',
-                  style: TextStyle(color: theme.colorScheme.onSurface),
+                  style: const TextStyle(color: Colors.white),
                   children: [
                     TextSpan(
                       text: 'Sign In',
-                      style: TextStyle(color: theme.colorScheme.primary),
+                      style: TextStyle(color: theme.colorScheme.tertiary),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () =>
                             context.replaceRoute(const SignInRoute()),

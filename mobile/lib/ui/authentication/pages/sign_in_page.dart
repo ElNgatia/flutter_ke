@@ -93,13 +93,17 @@ class SignInForm extends HookConsumerWidget {
         children: [
           Semantics(
             header: true,
-            child: Text('Sign In', style: textTheme.titleLarge),
+            child: Text(
+              'Sign In',
+              style: textTheme.titleLarge?.copyWith(color: Colors.white),
+            ),
           ),
           const SizedBox(height: 32),
           AutofillGroup(
             child: Column(
               children: [
                 TextFormField(
+                  style: const TextStyle(color: Colors.white),
                   controller: emailController,
                   key: const ValueKey('sign_in_email'),
                   keyboardType: TextInputType.emailAddress,
@@ -112,13 +116,22 @@ class SignInForm extends HookConsumerWidget {
                     }
                     return ValidatorService.emailFormatValidator(v.trim());
                   },
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Email',
                     hintText: 'example@gmail.com',
+                    floatingLabelStyle: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.tertiary,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: .new(
+                        color: theme.colorScheme.tertiary,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
+                  style: const TextStyle(color: Colors.white),
                   controller: passwordController,
                   key: const ValueKey('sign_in_password'),
                   keyboardType: TextInputType.visiblePassword,
@@ -141,6 +154,14 @@ class SignInForm extends HookConsumerWidget {
                   decoration: InputDecoration(
                     labelText: 'Password',
                     hintText: '********',
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: .new(
+                        color: theme.colorScheme.tertiary,
+                      ),
+                    ),
+                    floatingLabelStyle: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.tertiary,
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(
                         obscurePassword.value
@@ -163,6 +184,11 @@ class SignInForm extends HookConsumerWidget {
             width: double.infinity,
             height: 48,
             child: FilledButton(
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all(
+                  Colors.deepPurpleAccent,
+                ),
+              ),
               onPressed: switch (signInState) {
                 MutationPending() => null,
                 _ => submit,
@@ -181,15 +207,14 @@ class SignInForm extends HookConsumerWidget {
           ),
           const SizedBox(height: 24),
           Align(
-            alignment: Alignment.centerLeft,
             child: RichText(
               text: TextSpan(
                 text: "Don't have an account? ",
-                style: TextStyle(color: theme.colorScheme.onSurface),
+                style: const TextStyle(color: Colors.white),
                 children: [
                   TextSpan(
                     text: 'Sign Up',
-                    style: TextStyle(color: theme.colorScheme.primary),
+                    style: TextStyle(color: theme.colorScheme.tertiary),
                     recognizer: TapGestureRecognizer()
                       ..onTap = () => context.replaceRoute(const SignUpRoute()),
                   ),

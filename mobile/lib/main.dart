@@ -24,6 +24,7 @@ class MyApp extends ConsumerWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       title: 'Flutter Kenya',
+      debugShowCheckedModeBanner: false,
     );
   }
 }
