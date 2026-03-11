@@ -16,6 +16,7 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = context.router;
+    final theme = Theme.of(context);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     ref.listen(
@@ -45,6 +46,7 @@ class HomePage extends ConsumerWidget {
     );
 
     final logoutState = ref.watch(logoutMutation);
+    final channelsAsync = ref.watch(channelsProvider);
 
     const jobMessage = '''
 💼 IT Intern — Data Centre Operations: 6-month Paid Internship
@@ -71,38 +73,77 @@ https://ixafrica.co.ke/careers/it-intern-data-centre-operations-6-month-internsh
         backgroundColor: const Color(0xff15112b),
         elevation: 5,
         titleSpacing: 0,
-        title: const Row(
-          children: [
-            SizedBox(width: 12),
-            CircleAvatar(
-              radius: 22,
-              backgroundColor: Colors.white,
-              backgroundImage: NetworkImage(
-                'https://avatars.githubusercontent.com/u/14101776?s=200&v=4',
-              ),
+        centerTitle: false,
+        title: channelsAsync.when(
+          loading: () => Padding(
+            padding: const EdgeInsets.only(left: 12),
+            child: Text(
+              'Loading channel...',
+              style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white),
             ),
-            SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Flutter DevsKe 💻👨🏾‍💻',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(height: 2),
-                  Text(
-                    'Atati, Brian Kamau, bruce, Christi...',
-                    style: TextStyle(fontSize: 12, color: Colors.white70),
-                  ),
-                ],
-              ),
+          ),
+          error: (error, _) => const Padding(
+            padding: EdgeInsets.only(left: 12),
+            child: Text(
+              'Channel',
+              style: TextStyle(color: Colors.white),
             ),
-          ],
+          ),
+          data: (channels) {
+            if (channels.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.only(left: 12),
+                child: Text(
+                  'No Channel',
+                  style: TextStyle(color: Colors.white),
+                ),
+              );
+            }
+
+            final channel = channels.first;
+
+            return Row(
+              children: [
+                const SizedBox(width: 12),
+                CircleAvatar(
+                  radius: 22,
+                  backgroundColor: Colors.white,
+                  backgroundImage: channel.avatarUrl != null
+                      ? NetworkImage(channel.avatarUrl!)
+                      : null,
+                  child: channel.avatarUrl == null
+                      ? const Icon(Icons.group, color: Colors.black)
+                      : null,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        channel.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        channel.description ?? '${channel.memberCount} members',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white70,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
         ),
         actions: [
           IconButton(
@@ -127,7 +168,10 @@ https://ixafrica.co.ke/careers/it-intern-data-centre-operations-6-month-internsh
             child: ListView(
               physics: const BouncingScrollPhysics(),
               reverse: true,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 20,
+              ),
               children: const [
                 MessageBubble(
                   sender: 'Admin',
