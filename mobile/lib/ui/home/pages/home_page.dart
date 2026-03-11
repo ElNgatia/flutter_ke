@@ -48,25 +48,6 @@ class HomePage extends ConsumerWidget {
     final logoutState = ref.watch(logoutMutation);
     final channelsAsync = ref.watch(channelsProvider);
 
-    const jobMessage = '''
-💼 IT Intern — Data Centre Operations: 6-month Paid Internship
-
-📍 Location: On-site, Nairobi (iXAfrica Data Centre – NBOX1)
-
-🔎 What we’re looking for
-• 🐧 Strong Linux CLI + scripting (Python preferred)
-• 🌿 Git collaboration (branches / PRs / code reviews)
-• 🌐 TCP/IP fundamentals (DNS, DHCP, subnetting, routing)
-• 🖥️ Basic virtualisation knowledge (VMware / KVM / Proxmox)
-• 🤖 Android dev (Kotlin preferred): Android Studio / SDK / Jetpack + REST / JSON integrations
-
-🎓 Eligibility
-• CS / IT / Network / Software Engineering (current or recent). Strong problem-solving + clear documentation.
-
-🔗 Apply:
-https://ixafrica.co.ke/careers/it-intern-data-centre-operations-6-month-internship/
-''';
-
     return Scaffold(
       backgroundColor: const Color(0xff15112b),
       appBar: AppBar(
@@ -165,20 +146,78 @@ https://ixafrica.co.ke/careers/it-intern-data-centre-operations-6-month-internsh
       body: Column(
         children: [
           Expanded(
-            child: ListView(
-              physics: const BouncingScrollPhysics(),
-              reverse: true,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 20,
+            child: channelsAsync.when(
+              loading: () => const Center(
+                child: LoadingIndicator(),
               ),
-              children: const [
-                MessageBubble(
-                  sender: 'Admin',
-                  text: jobMessage,
-                  isMe: false,
+              error: (_, _) => Center(
+                child: Text(
+                  'Failed to load messages',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: Colors.white,
+                  ),
                 ),
-              ],
+              ),
+              data: (channels) {
+                if (channels.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No messages',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: Colors.white,
+                      ),
+                    ),
+                  );
+                }
+                final channel = channels.first;
+                final messagesAsync = ref.watch(
+                  messagesProvider(channel.id),
+                );
+
+                return messagesAsync.when(
+                  loading: () => const Center(
+                    child: LoadingIndicator(),
+                  ),
+                  error: (_, _) => Center(
+                    child: Text(
+                      'Failed to load messages',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  data: (messages) {
+                    if (messages.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'No messages',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      reverse: true,
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 20,
+                      ),
+                      itemCount: messages.length,
+                      itemBuilder: (context, index) {
+                        final message = messages[index];
+                        return MessageBubble(
+                          sender: 'Admin',
+                          text: message.content ?? '',
+                          isMe: false,
+                        );
+                      },
+                    );
+                  },
+                );
+              },
             ),
           ),
           Container(
