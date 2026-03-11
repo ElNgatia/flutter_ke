@@ -27,6 +27,45 @@ class ChannelsRepository {
     }
   }
 
+  Future<List<Message>> fetchMessages(String channelId) async {
+    try {
+      final response = await client
+          .from('messages')
+          .select()
+          .eq('channel_id', channelId)
+          .eq('is_deleted', false)
+          .order('created_at');
+      return (response as List)
+          .map((json) => Message.fromJson(json as Map<String, dynamic>))
+          .toList();
+    } on Exception catch (_) {
+      throw ChannelsRepositoryException(
+        'Failed to fetch messages',
+      );
+    }
+  }
+
+  Future<Message> sendMessage({
+    required String channelId,
+    required String content,
+  }) async {
+    try {
+      final response = await client
+          .from('messages')
+          .insert({
+            'channel_id': channelId,
+            'content': content,
+          })
+          .select()
+          .single();
+      return Message.fromJson(response);
+    } on Exception catch (_) {
+      throw ChannelsRepositoryException(
+        'Failed to send message',
+      );
+    }
+  }
+
   Future<Channel> createChannel({
     required String name,
     String? description,

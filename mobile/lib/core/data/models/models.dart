@@ -1,1 +1,1 @@
-export 'channel.dart';
+export 'channels/channels.dart';
