@@ -104,10 +104,10 @@ class SignUpForm extends HookConsumerWidget {
             AutofillGroup(
               child: Column(
                 children: [
-                  TextFormField(
-                    style: const TextStyle(color: Colors.white),
+                  CustomTextField(
                     controller: emailController,
-                    key: const ValueKey('sign_up_email'),
+                    labelText: 'Email',
+                    hintText: 'example@gmail.com',
                     keyboardType: TextInputType.emailAddress,
                     autofocus: true,
                     textInputAction: TextInputAction.next,
@@ -116,24 +116,16 @@ class SignUpForm extends HookConsumerWidget {
                       if (v == null || v.trim().isEmpty) {
                         return 'Email is required';
                       }
+
                       return ValidatorService.emailFormatValidator(v.trim());
                     },
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      hintText: 'example@gmail.com',
-                      floatingLabelStyle: TextStyle(
-                        color: Colors.deepPurpleAccent,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.deepPurpleAccent),
-                      ),
-                    ),
+                    fieldKey: const ValueKey('sign_up_email'),
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
-                    style: const TextStyle(color: Colors.white),
+                  CustomTextField(
                     controller: passwordController,
-                    key: const ValueKey('sign_up_password'),
+                    labelText: 'Password',
+                    hintText: '********',
                     keyboardType: TextInputType.visiblePassword,
                     textInputAction: TextInputAction.next,
                     autofillHints: const [AutofillHints.newPassword],
@@ -150,35 +142,25 @@ class SignUpForm extends HookConsumerWidget {
                       }
                       return null;
                     },
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      hintText: '********',
-                      floatingLabelStyle: const TextStyle(
-                        color: Colors.deepPurpleAccent,
-                      ),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.deepPurpleAccent),
-                      ),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          obscurePassword.value
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                        ),
-                        onPressed: () =>
-                            obscurePassword.value = !obscurePassword.value,
-
-                        tooltip: obscurePassword.value
-                            ? 'Show password'
-                            : 'Hide password',
+                    fieldKey: const ValueKey('sign_up_password'),
+                    suffixIcon: IconButton(
+                      onPressed: () =>
+                          obscurePassword.value = !obscurePassword.value,
+                      tooltip: obscurePassword.value
+                          ? 'Show password'
+                          : 'Hide password',
+                      icon: Icon(
+                        obscurePassword.value
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
-                    style: const TextStyle(color: Colors.white),
+                  CustomTextField(
                     controller: confirmPasswordController,
-                    key: const ValueKey('sign_up_confirm_password'),
+                    labelText: 'Confirm Password',
+                    hintText: '********',
                     keyboardType: TextInputType.visiblePassword,
                     textInputAction: TextInputAction.done,
                     autofillHints: const [AutofillHints.newPassword],
@@ -195,27 +177,17 @@ class SignUpForm extends HookConsumerWidget {
                       }
                       return null;
                     },
-                    decoration: InputDecoration(
-                      labelText: 'Confirm Password',
-                      hintText: '********',
-                      floatingLabelStyle: const TextStyle(
-                        color: Colors.deepPurpleAccent,
-                      ),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.deepPurpleAccent),
-                      ),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          obscureConfirmPassword.value
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                        ),
-                        onPressed: () => obscureConfirmPassword.value =
-                            !obscureConfirmPassword.value,
-
-                        tooltip: obscureConfirmPassword.value
-                            ? 'Show password'
-                            : 'Hide password',
+                    fieldKey: const ValueKey('sign_up_confirm_password'),
+                    suffixIcon: IconButton(
+                      onPressed: () => obscureConfirmPassword.value =
+                          !obscureConfirmPassword.value,
+                      tooltip: obscureConfirmPassword.value
+                          ? 'Show password'
+                          : 'Hide password',
+                      icon: Icon(
+                        obscureConfirmPassword.value
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                       ),
                     ),
                   ),
