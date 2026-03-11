@@ -86,15 +86,9 @@ class HomePage extends ConsumerWidget {
             return Row(
               children: [
                 const SizedBox(width: 12),
-                CircleAvatar(
-                  radius: 22,
-                  backgroundColor: Colors.white,
-                  backgroundImage: channel.avatarUrl != null
-                      ? NetworkImage(channel.avatarUrl!)
-                      : null,
-                  child: channel.avatarUrl == null
-                      ? const Icon(Icons.group, color: Colors.black)
-                      : null,
+                ProfileImage(
+                  size: 40,
+                  image: channel.avatarUrl,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
