@@ -236,16 +236,10 @@ class SignUpForm extends HookConsumerWidget {
                   MutationPending() => null,
                   _ => submit,
                 },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Sign up'),
-                    if (signUpState is MutationPending) ...[
-                      const SizedBox(width: 8),
-                      const CircularProgressIndicator(),
-                    ],
-                  ],
-                ),
+                child: switch (signUpState) {
+                  MutationPending() => const LoadingIndicator(),
+                  _ => const Text('Sign up'),
+                },
               ),
             ),
             const SizedBox(height: 24),

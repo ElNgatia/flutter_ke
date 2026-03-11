@@ -180,30 +180,15 @@ class SignInForm extends HookConsumerWidget {
             ),
           ),
           const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: FilledButton(
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all(
-                  Colors.deepPurpleAccent,
-                ),
-              ),
-              onPressed: switch (signInState) {
-                MutationPending() => null,
-                _ => submit,
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Sign in'),
-                  if (signInState is MutationPending) ...[
-                    const SizedBox(width: 8),
-                    const CircularProgressIndicator(),
-                  ],
-                ],
-              ),
-            ),
+          CustomFilledButton(
+            onPressed: switch (signInState) {
+              MutationPending() => null,
+              _ => submit,
+            },
+            child: switch (signInState) {
+              MutationPending() => const LoadingIndicator(),
+              _ => const Text('Sign in'),
+            },
           ),
           const SizedBox(height: 24),
           Align(
