@@ -1,20 +1,64 @@
+import 'dart:developer';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/experimental/mutation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/core/core.dart';
 import 'package:mobile/ui/ui.dart';
 
+final _logoutMutation = Mutation<dynamic>();
+
 @RoutePage()
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   static const path = '/home';
 
   @override
-  State<HomePage> createState() => _HomePageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = context.router;
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-class _HomePageState extends State<HomePage> {
-  String jobMessage = '''
+    Future<void> logoutUser() async {
+      await _logoutMutation.run(ref, (tsx) async {
+        final authNotifier = tsx.get(authProvider.notifier);
+        try {
+          await authNotifier.signOut();
+        } on Exception catch (_, _) {
+          rethrow;
+        }
+      });
+    }
+
+    ref.listen(
+      _logoutMutation,
+      (_, currentValue) {
+        switch (currentValue) {
+          case MutationPending():
+            return;
+          case MutationError(:final error, :final stackTrace):
+            log(
+              'Error signing out',
+              error: error,
+              stackTrace: stackTrace,
+              level: 1000,
+            );
+
+            scaffoldMessenger.showSnackBar(
+              const SnackBar(
+                content: Text('An error occurred during signing out'),
+              ),
+            );
+          default:
+            router.replace(const SignInRoute());
+        }
+      },
+    );
+
+    final logoutState = ref.watch(_logoutMutation);
+
+    const jobMessage = '''
 💼 IT Intern — Data Centre Operations: 6-month Paid Internship
 
 📍 Location: On-site, Nairobi (iXAfrica Data Centre – NBOX1)
@@ -32,10 +76,6 @@ class _HomePageState extends State<HomePage> {
 🔗 Apply:
 https://ixafrica.co.ke/careers/it-intern-data-centre-operations-6-month-internship/
 ''';
-
-  @override
-  Widget build(BuildContext context) {
-    final router = context.router;
 
     return Scaffold(
       backgroundColor: const Color(0xff15112b),
@@ -85,11 +125,17 @@ https://ixafrica.co.ke/careers/it-intern-data-centre-operations-6-month-internsh
             onPressed: () {},
           ),
           IconButton(
-            icon: const Icon(
-              Icons.logout,
-              color: Colors.white,
-            ),
-            onPressed: () => router.replace(const SignInRoute()),
+            icon: switch (logoutState) {
+              MutationPending() => const LoadingIndicator(),
+              _ => const Icon(
+                Icons.logout,
+                color: Colors.white,
+              ),
+            },
+            onPressed: switch (logoutState) {
+              MutationPending() => null,
+              _ => logoutUser,
+            },
           ),
         ],
       ),
@@ -103,7 +149,7 @@ https://ixafrica.co.ke/careers/it-intern-data-centre-operations-6-month-internsh
               physics: const BouncingScrollPhysics(),
               reverse: true,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-              children: [
+              children: const [
                 MessageBubble(
                   sender: 'Admin',
                   text: jobMessage,

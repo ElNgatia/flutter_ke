@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -41,7 +42,9 @@ class SignInForm extends HookConsumerWidget {
 
     final obscurePassword = useState(true);
 
-    final emailController = useTextEditingController();
+    final emailController = useTextEditingController(
+      text: kDebugMode ? 'denzelgatugu@gmail.com' : '',
+    );
     final passwordController = useTextEditingController();
     final formKey = useMemoized(GlobalKey<FormState>.new);
 
@@ -118,33 +121,6 @@ class SignInForm extends HookConsumerWidget {
                   },
                   fieldKey: const ValueKey('sign_in_email'),
                 ),
-                // TextFormField(
-                //   style: const TextStyle(color: Colors.white),
-                //   controller: emailController,
-                //   key: const ValueKey('sign_in_email'),
-                //   keyboardType: TextInputType.emailAddress,
-                //   autofocus: true,
-                //   textInputAction: TextInputAction.next,
-                //   autofillHints: const [AutofillHints.email],
-                //   validator: (v) {
-                //     if (v == null || v.trim().isEmpty) {
-                //       return 'Email is required';
-                //     }
-                //     return ValidatorService.emailFormatValidator(v.trim());
-                //   },
-                //   decoration: InputDecoration(
-                //     labelText: 'Email',
-                //     hintText: 'example@gmail.com',
-                //     floatingLabelStyle: theme.textTheme.bodyMedium?.copyWith(
-                //       color: theme.colorScheme.tertiary,
-                //     ),
-                //     focusedBorder: OutlineInputBorder(
-                //       borderSide: .new(
-                //         color: theme.colorScheme.tertiary,
-                //       ),
-                //     ),
-                //   ),
-                // ),
                 const SizedBox(height: 16),
                 CustomTextField(
                   controller: passwordController,
@@ -168,53 +144,19 @@ class SignInForm extends HookConsumerWidget {
                     return null;
                   },
                   fieldKey: const ValueKey('sign_in_password'),
+                  suffixIcon: IconButton(
+                    onPressed: () =>
+                        obscurePassword.value = !obscurePassword.value,
+                    tooltip: obscurePassword.value
+                        ? 'Show password'
+                        : 'Hide password',
+                    icon: Icon(
+                      obscurePassword.value
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
+                  ),
                 ),
-                // TextFormField(
-                //   style: const TextStyle(color: Colors.white),
-                //   controller: passwordController,
-                //   key: const ValueKey('sign_in_password'),
-                //   keyboardType: TextInputType.visiblePassword,
-                //   textInputAction: TextInputAction.done,
-                //   autofillHints: const [AutofillHints.password],
-                //   obscureText: obscurePassword.value,
-                //   enableSuggestions: false,
-                //   autocorrect: false,
-                //   onFieldSubmitted: (_) => submit(),
-                //   validator: (v) {
-                //     if (v == null || v.isEmpty) {
-                //       return 'Password is required';
-                //     }
-                //     if (v.length < minPasswordLength) {
-                //       return 'Password must be at least $minPasswordLength '
-                //           'characters';
-                //     }
-                //     return null;
-                //   },
-                //   decoration: InputDecoration(
-                //     labelText: 'Password',
-                //     hintText: '********',
-                //     focusedBorder: OutlineInputBorder(
-                //       borderSide: .new(
-                //         color: theme.colorScheme.tertiary,
-                //       ),
-                //     ),
-                //     floatingLabelStyle: theme.textTheme.bodyMedium?.copyWith(
-                //       color: theme.colorScheme.tertiary,
-                //     ),
-                //     suffixIcon: IconButton(
-                //       icon: Icon(
-                //         obscurePassword.value
-                //             ? Icons.visibility_outlined
-                //             : Icons.visibility_off_outlined,
-                //       ),
-                //       onPressed: () =>
-                //           obscurePassword.value = !obscurePassword.value,
-                //       tooltip: obscurePassword.value
-                //           ? 'Show password'
-                //           : 'Hide password',
-                //     ),
-                //   ),
-                // ),
               ],
             ),
           ),
