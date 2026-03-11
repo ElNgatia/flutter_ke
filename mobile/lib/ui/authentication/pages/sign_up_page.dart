@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:developer';
 
 import 'package:auto_route/auto_route.dart';
@@ -29,8 +28,6 @@ class SignUpPage extends StatelessWidget {
   }
 }
 
-final Mutation<dynamic> _signUpMutation = Mutation();
-
 class SignUpForm extends HookConsumerWidget {
   const SignUpForm({super.key});
 
@@ -38,50 +35,52 @@ class SignUpForm extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-
     final obscurePassword = useState(true);
     final obscureConfirmPassword = useState(true);
-
     final emailController = useTextEditingController();
     final passwordController = useTextEditingController();
     final confirmPasswordController = useTextEditingController();
     final formKey = useMemoized(GlobalKey<FormState>.new);
-
     const minPasswordLength = 8;
-    final signUpState = ref.watch(_signUpMutation);
 
-    Future<void> submit() async {
-      if (formKey.currentState?.validate() ?? false) {
-        final email = emailController.text.trim();
-        final password = passwordController.text.trim();
+    ref.listen(
+      signUpMutation,
+      (_, state) {
+        switch (state) {
+          case MutationSuccess():
+            context.router.replace(const HomeRoute());
 
-        await _signUpMutation.run(ref, (tsx) async {
-          TextInput.finishAutofillContext();
-          final authNotifier = tsx.get(authProvider.notifier);
-          final scaffoldMessenger = ScaffoldMessenger.of(context);
-          final router = context.router;
-
-          try {
-            await authNotifier.signUpWithEmailAndPassword(
-              email: email,
-              password: password,
-            );
-            unawaited(router.replace(const HomeRoute()));
-          } on Exception catch (e, stackTrace) {
+          case MutationError(:final error, :final stackTrace):
             log(
               'Error signing up',
-              error: e,
+              error: error,
               stackTrace: stackTrace,
-              level: 1000,
             );
 
-            scaffoldMessenger.showSnackBar(
+            ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('An error occurred during signing up'),
               ),
             );
-          }
-        });
+
+          default:
+            break;
+        }
+      },
+    );
+
+    final signUpState = ref.watch(signUpMutation);
+
+    Future<void> submit() async {
+      if (formKey.currentState?.validate() ?? false) {
+        TextInput.finishAutofillContext();
+
+        await ref
+            .read(signUpControllerProvider.notifier)
+            .signUp(
+              email: emailController.text.trim(),
+              password: passwordController.text.trim(),
+            );
       }
     }
 
@@ -136,10 +135,12 @@ class SignUpForm extends HookConsumerWidget {
                       if (v == null || v.isEmpty) {
                         return 'Password is required';
                       }
+
                       if (v.length < minPasswordLength) {
                         return 'Password must be at least $minPasswordLength '
                             'characters';
                       }
+
                       return null;
                     },
                     fieldKey: const ValueKey('sign_up_password'),
@@ -172,9 +173,11 @@ class SignUpForm extends HookConsumerWidget {
                       if (v == null || v.isEmpty) {
                         return 'Confirm your password';
                       }
+
                       if (v != passwordController.text) {
                         return 'Passwords do not match';
                       }
+
                       return null;
                     },
                     fieldKey: const ValueKey('sign_up_confirm_password'),

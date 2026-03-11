@@ -7,8 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/core/core.dart';
 import 'package:mobile/ui/ui.dart';
 
-final _logoutMutation = Mutation<dynamic>();
-
 @RoutePage()
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -20,29 +18,15 @@ class HomePage extends ConsumerWidget {
     final router = context.router;
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-    Future<void> logoutUser() async {
-      await _logoutMutation.run(ref, (tsx) async {
-        final authNotifier = tsx.get(authProvider.notifier);
-        try {
-          await authNotifier.signOut();
-        } on Exception catch (_, _) {
-          rethrow;
-        }
-      });
-    }
-
     ref.listen(
-      _logoutMutation,
-      (_, currentValue) {
-        switch (currentValue) {
-          case MutationPending():
-            return;
+      logoutMutation,
+      (_, state) {
+        switch (state) {
           case MutationError(:final error, :final stackTrace):
             log(
               'Error signing out',
               error: error,
               stackTrace: stackTrace,
-              level: 1000,
             );
 
             scaffoldMessenger.showSnackBar(
@@ -50,13 +34,17 @@ class HomePage extends ConsumerWidget {
                 content: Text('An error occurred during signing out'),
               ),
             );
-          default:
+
+          case MutationSuccess():
             router.replace(const SignInRoute());
+
+          default:
+            break;
         }
       },
     );
 
-    final logoutState = ref.watch(_logoutMutation);
+    final logoutState = ref.watch(logoutMutation);
 
     const jobMessage = '''
 💼 IT Intern — Data Centre Operations: 6-month Paid Internship
@@ -118,31 +106,22 @@ https://ixafrica.co.ke/careers/it-intern-data-centre-operations-6-month-internsh
         ),
         actions: [
           IconButton(
-            icon: const Icon(
-              Icons.person_outline,
-              color: Colors.white,
-            ),
+            icon: const Icon(Icons.person_outline, color: Colors.white),
             onPressed: () {},
           ),
           IconButton(
             icon: switch (logoutState) {
               MutationPending() => const LoadingIndicator(),
-              _ => const Icon(
-                Icons.logout,
-                color: Colors.white,
-              ),
+              _ => const Icon(Icons.logout, color: Colors.white),
             },
             onPressed: switch (logoutState) {
               MutationPending() => null,
-              _ => logoutUser,
+              _ => () => ref.read(logoutControllerProvider.notifier).logout(),
             },
           ),
         ],
       ),
-
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
             child: ListView(
@@ -159,11 +138,8 @@ https://ixafrica.co.ke/careers/it-intern-data-centre-operations-6-month-internsh
             ),
           ),
           Container(
-            width: double.infinity,
             height: 30,
-            decoration: const BoxDecoration(
-              color: Color(0xff15112b),
-            ),
+            color: const Color(0xff15112b),
           ),
         ],
       ),

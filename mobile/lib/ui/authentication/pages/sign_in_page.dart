@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:developer';
 
 import 'package:auto_route/auto_route.dart';
@@ -30,76 +29,69 @@ class SignInPage extends StatelessWidget {
   }
 }
 
-final Mutation<dynamic> _signInMutation = Mutation();
-
 class SignInForm extends HookConsumerWidget {
   const SignInForm({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
-
     final obscurePassword = useState(true);
-
     final emailController = useTextEditingController(
       text: kDebugMode ? 'denzelgatugu@gmail.com' : '',
     );
     final passwordController = useTextEditingController();
     final formKey = useMemoized(GlobalKey<FormState>.new);
-
     const minPasswordLength = 8;
 
-    Future<void> submit() async {
-      if (formKey.currentState?.validate() ?? false) {
-        final email = emailController.text.trim();
-        final password = passwordController.text.trim();
+    ref.listen(
+      signInMutation,
+      (_, state) {
+        switch (state) {
+          case MutationSuccess():
+            context.router.replace(const HomeRoute());
 
-        await _signInMutation.run(ref, (tsx) async {
-          TextInput.finishAutofillContext();
-          final scaffoldMessenger = ScaffoldMessenger.of(context);
-          final router = context.router;
-
-          final authNotifier = tsx.get(authProvider.notifier);
-          try {
-            await authNotifier.signInWithEmailAndPassword(
-              email: email,
-              password: password,
-            );
-
-            unawaited(router.replace(const HomeRoute()));
-          } on Exception catch (e, stackTrace) {
+          case MutationError(:final error, :final stackTrace):
             log(
               'Error signing in',
-              error: e,
+              error: error,
               stackTrace: stackTrace,
-              level: 1000,
             );
 
-            scaffoldMessenger.showSnackBar(
+            ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('An error occurred during signing in'),
               ),
             );
-          }
-        });
+
+          default:
+            break;
+        }
+      },
+    );
+
+    final signInState = ref.watch(signInMutation);
+
+    Future<void> submit() async {
+      if (formKey.currentState?.validate() ?? false) {
+        TextInput.finishAutofillContext();
+
+        await ref
+            .read(signInControllerProvider.notifier)
+            .signIn(
+              email: emailController.text.trim(),
+              password: passwordController.text.trim(),
+            );
       }
     }
-
-    final signInState = ref.watch(_signInMutation);
 
     return Form(
       key: formKey,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Semantics(
-            header: true,
-            child: Text(
-              'Sign In',
-              style: textTheme.titleLarge?.copyWith(color: Colors.white),
-            ),
+          Text(
+            'Sign In',
+            style: theme.textTheme.titleLarge?.copyWith(color: Colors.white),
           ),
           const SizedBox(height: 32),
           AutofillGroup(
@@ -110,29 +102,19 @@ class SignInForm extends HookConsumerWidget {
                   labelText: 'Email',
                   hintText: 'example@gmail.com',
                   keyboardType: TextInputType.emailAddress,
-                  autofocus: true,
-                  textInputAction: TextInputAction.next,
-                  autofillHints: const [AutofillHints.email],
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) {
                       return 'Email is required';
                     }
                     return ValidatorService.emailFormatValidator(v.trim());
                   },
-                  fieldKey: const ValueKey('sign_in_email'),
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
                   controller: passwordController,
                   labelText: 'Password',
                   hintText: '********',
-                  keyboardType: TextInputType.visiblePassword,
-                  textInputAction: TextInputAction.done,
-                  autofillHints: const [AutofillHints.password],
                   obscureText: obscurePassword.value,
-                  enableSuggestions: false,
-                  autocorrect: false,
-                  onFieldSubmitted: (_) => submit(),
                   validator: (v) {
                     if (v == null || v.isEmpty) {
                       return 'Password is required';
@@ -143,13 +125,9 @@ class SignInForm extends HookConsumerWidget {
                     }
                     return null;
                   },
-                  fieldKey: const ValueKey('sign_in_password'),
                   suffixIcon: IconButton(
                     onPressed: () =>
                         obscurePassword.value = !obscurePassword.value,
-                    tooltip: obscurePassword.value
-                        ? 'Show password'
-                        : 'Hide password',
                     icon: Icon(
                       obscurePassword.value
                           ? Icons.visibility_off
@@ -172,20 +150,18 @@ class SignInForm extends HookConsumerWidget {
             },
           ),
           const SizedBox(height: 24),
-          Align(
-            child: RichText(
-              text: TextSpan(
-                text: "Don't have an account? ",
-                style: const TextStyle(color: Colors.white),
-                children: [
-                  TextSpan(
-                    text: 'Sign Up',
-                    style: TextStyle(color: theme.colorScheme.tertiary),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () => context.replaceRoute(const SignUpRoute()),
-                  ),
-                ],
-              ),
+          RichText(
+            text: TextSpan(
+              text: "Don't have an account? ",
+              style: const TextStyle(color: Colors.white),
+              children: [
+                TextSpan(
+                  text: 'Sign Up',
+                  style: TextStyle(color: theme.colorScheme.tertiary),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () => context.replaceRoute(const SignUpRoute()),
+                ),
+              ],
             ),
           ),
         ],
