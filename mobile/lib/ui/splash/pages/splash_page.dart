@@ -1,8 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/providers/auth/auth_notifier_provider.dart';
-import 'package:mobile/router/app_router.gr.dart';
+import 'package:mobile/core/core.dart';
 
 @RoutePage()
 class SplashPage extends ConsumerWidget {
@@ -10,16 +9,17 @@ class SplashPage extends ConsumerWidget {
 
   static const path = '/';
 
-  void authListener(BuildContext context, AsyncValue currentValue) {
+  void authListener(BuildContext context, AsyncValue<dynamic> currentValue) {
     switch (currentValue) {
-        case AsyncLoading():
-          return;
-        // ignore: unused_local_variable
-        case AsyncData(:final value?):
-          context.replaceRoute(HomeRoute());
-        default: 
-          context.replaceRoute(SignUpRoute());
-      }
+      case AsyncLoading():
+        return;
+      // This private field will be used later.
+      // ignore: unused_local_variable
+      case AsyncData(:final value?):
+        context.replaceRoute(const HomeRoute());
+      default:
+        context.replaceRoute(const SignUpRoute());
+    }
   }
 
   @override
@@ -27,7 +27,6 @@ class SplashPage extends ConsumerWidget {
     ref.listen(authProvider, (_, currentValue) {
       authListener(context, currentValue);
     });
-
 
     return const Scaffold(body: Center(child: Text('Flutter KE')));
   }

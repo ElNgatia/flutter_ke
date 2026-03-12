@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/providers/supabase/supabase_client_provider.dart';
-import 'package:mobile/router/app_router.dart';
-import 'package:mobile/ui/theme/theme.dart';
+import 'package:mobile/core/core.dart';
+import 'package:mobile/ui/theme/app_theme.dart';
 
 Future<void> main() async {
   await dotenv.load();
 
-  runApp(ProviderScope(child: const MyApp()));
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 final _appRouter = AppRouter();
@@ -25,6 +24,7 @@ class MyApp extends ConsumerWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       title: 'Flutter Kenya',
+      debugShowCheckedModeBanner: false,
     );
   }
 }

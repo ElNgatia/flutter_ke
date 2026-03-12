@@ -7,9 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/experimental/mutation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobile/router/app_router.gr.dart';
-import 'package:mobile/providers/auth/auth_notifier_provider.dart';
-import 'package:mobile/services/validator_service/validator_service.dart';
+import 'package:mobile/core/core.dart';
 
 @RoutePage()
 class SignUpPage extends StatelessWidget {
@@ -22,15 +20,13 @@ class SignUpPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Flutter Kenya')),
       body: Container(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         alignment: Alignment.center,
         child: const SignUpForm(),
       ),
     );
   }
 }
-
-final _signUpMutation = Mutation();
 
 class SignUpForm extends HookConsumerWidget {
   const SignUpForm({super.key});
@@ -39,50 +35,52 @@ class SignUpForm extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-
     final obscurePassword = useState(true);
     final obscureConfirmPassword = useState(true);
-
     final emailController = useTextEditingController();
     final passwordController = useTextEditingController();
     final confirmPasswordController = useTextEditingController();
     final formKey = useMemoized(GlobalKey<FormState>.new);
-
     const minPasswordLength = 8;
-    final signUpState = ref.watch(_signUpMutation);
 
-    Future<void> submit() async {
-      if (formKey.currentState?.validate() ?? false) {
-        final email = emailController.text.trim();
-        final password = passwordController.text.trim();
+    ref.listen(
+      signUpMutation,
+      (_, state) {
+        switch (state) {
+          case MutationSuccess():
+            context.router.replace(const HomeRoute());
 
-        _signUpMutation.run(ref, (tsx) async {
-          TextInput.finishAutofillContext();
-          final authNotifier = tsx.get(authProvider.notifier);
-          final scaffoldMessenger = ScaffoldMessenger.of(context);
-          final router = context.router;
-
-          try {
-            await authNotifier.signUpWithEmailAndPassword(
-              email: email,
-              password: password,
-            );
-            router.replace(HomeRoute());
-          } catch (e, stackTrace) {
+          case MutationError(:final error, :final stackTrace):
             log(
               'Error signing up',
-              error: e,
+              error: error,
               stackTrace: stackTrace,
-              level: 1000,
             );
 
-            scaffoldMessenger.showSnackBar(
+            ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('An error occurred during signing up'),
               ),
             );
-          }
-        });
+
+          default:
+            break;
+        }
+      },
+    );
+
+    final signUpState = ref.watch(signUpMutation);
+
+    Future<void> submit() async {
+      if (formKey.currentState?.validate() ?? false) {
+        TextInput.finishAutofillContext();
+
+        await ref
+            .read(signUpControllerProvider.notifier)
+            .signUp(
+              email: emailController.text.trim(),
+              password: passwordController.text.trim(),
+            );
       }
     }
 
@@ -96,35 +94,37 @@ class SignUpForm extends HookConsumerWidget {
           children: [
             Semantics(
               header: true,
-              child: Text('Sign Up', style: textTheme.titleLarge),
+              child: Text(
+                'Sign Up',
+                style: textTheme.titleLarge?.copyWith(color: Colors.white),
+              ),
             ),
             const SizedBox(height: 32),
             AutofillGroup(
               child: Column(
                 children: [
-                  TextFormField(
+                  CustomTextField(
                     controller: emailController,
-                    key: const ValueKey('sign_up_email'),
+                    labelText: 'Email',
+                    hintText: 'example@gmail.com',
                     keyboardType: TextInputType.emailAddress,
                     autofocus: true,
                     textInputAction: TextInputAction.next,
                     autofillHints: const [AutofillHints.email],
-                    textCapitalization: TextCapitalization.none,
                     validator: (v) {
                       if (v == null || v.trim().isEmpty) {
                         return 'Email is required';
                       }
+
                       return ValidatorService.emailFormatValidator(v.trim());
                     },
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      hintText: 'example@gmail.com',
-                    ),
+                    fieldKey: const ValueKey('sign_up_email'),
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
+                  CustomTextField(
                     controller: passwordController,
-                    key: const ValueKey('sign_up_password'),
+                    labelText: 'Password',
+                    hintText: '********',
                     keyboardType: TextInputType.visiblePassword,
                     textInputAction: TextInputAction.next,
                     autofillHints: const [AutofillHints.newPassword],
@@ -135,33 +135,33 @@ class SignUpForm extends HookConsumerWidget {
                       if (v == null || v.isEmpty) {
                         return 'Password is required';
                       }
+
                       if (v.length < minPasswordLength) {
-                        return 'Password must be at least $minPasswordLength characters';
+                        return 'Password must be at least $minPasswordLength '
+                            'characters';
                       }
+
                       return null;
                     },
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      hintText: '********',
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          obscurePassword.value
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                        ),
-                        onPressed: () =>
-                            obscurePassword.value = !obscurePassword.value,
-
-                        tooltip: obscurePassword.value
-                            ? 'Show password'
-                            : 'Hide password',
+                    fieldKey: const ValueKey('sign_up_password'),
+                    suffixIcon: IconButton(
+                      onPressed: () =>
+                          obscurePassword.value = !obscurePassword.value,
+                      tooltip: obscurePassword.value
+                          ? 'Show password'
+                          : 'Hide password',
+                      icon: Icon(
+                        obscurePassword.value
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
+                  CustomTextField(
                     controller: confirmPasswordController,
-                    key: const ValueKey('sign_up_confirm_password'),
+                    labelText: 'Confirm Password',
+                    hintText: '********',
                     keyboardType: TextInputType.visiblePassword,
                     textInputAction: TextInputAction.done,
                     autofillHints: const [AutofillHints.newPassword],
@@ -173,26 +173,24 @@ class SignUpForm extends HookConsumerWidget {
                       if (v == null || v.isEmpty) {
                         return 'Confirm your password';
                       }
+
                       if (v != passwordController.text) {
                         return 'Passwords do not match';
                       }
+
                       return null;
                     },
-                    decoration: InputDecoration(
-                      labelText: 'Confirm Password',
-                      hintText: '********',
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          obscureConfirmPassword.value
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                        ),
-                        onPressed: () => obscureConfirmPassword.value =
-                            !obscureConfirmPassword.value,
-
-                        tooltip: obscureConfirmPassword.value
-                            ? 'Show password'
-                            : 'Hide password',
+                    fieldKey: const ValueKey('sign_up_confirm_password'),
+                    suffixIcon: IconButton(
+                      onPressed: () => obscureConfirmPassword.value =
+                          !obscureConfirmPassword.value,
+                      tooltip: obscureConfirmPassword.value
+                          ? 'Show password'
+                          : 'Hide password',
+                      icon: Icon(
+                        obscureConfirmPassword.value
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                       ),
                     ),
                   ),
@@ -204,35 +202,34 @@ class SignUpForm extends HookConsumerWidget {
               width: double.infinity,
               height: 48,
               child: FilledButton(
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all(
+                    Colors.deepPurpleAccent,
+                  ),
+                ),
                 onPressed: switch (signUpState) {
                   MutationPending() => null,
-                  _ => () => submit(),
+                  _ => submit,
                 },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Sign up'),
-                    if (signUpState is MutationPending) ...[
-                      const SizedBox(width: 8),
-                      const CircularProgressIndicator(),
-                    ],
-                  ],
-                ),
+                child: switch (signUpState) {
+                  MutationPending() => const LoadingIndicator(),
+                  _ => const Text('Sign up'),
+                },
               ),
             ),
             const SizedBox(height: 24),
             Align(
-              alignment: Alignment.centerLeft,
               child: RichText(
                 text: TextSpan(
                   text: 'Already have an account? ',
-                  style: TextStyle(color: theme.colorScheme.onSurface),
+                  style: const TextStyle(color: Colors.white),
                   children: [
                     TextSpan(
                       text: 'Sign In',
-                      style: TextStyle(color: theme.colorScheme.primary),
+                      style: TextStyle(color: theme.colorScheme.tertiary),
                       recognizer: TapGestureRecognizer()
-                        ..onTap = () => context.replaceRoute(SignInRoute()),
+                        ..onTap = () =>
+                            context.replaceRoute(const SignInRoute()),
                     ),
                   ],
                 ),

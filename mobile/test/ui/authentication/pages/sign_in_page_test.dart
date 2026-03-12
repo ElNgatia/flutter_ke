@@ -1,9 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobile/repositories/auth_repository/auth_repository.dart';
-import 'package:mobile/router/app_router.dart';
-import 'package:mobile/router/app_router.gr.dart';
+import 'package:mobile/core/core.dart';
 import 'package:mobile/ui/home/pages/home_page.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -17,7 +17,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          authRepositoryProvider.overrideWith((ref) async => mockAuthRepository),
+          authRepositoryProvider.overrideWith(
+            (ref) async => mockAuthRepository,
+          ),
         ],
         child: MaterialApp.router(routerConfig: router.config()),
       ),
@@ -25,7 +27,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    router.push(const SignInRoute());
+    unawaited(router.push(const SignInRoute()));
 
     await tester.pumpAndSettle();
   }
@@ -35,7 +37,9 @@ void main() {
     router = AppRouter();
 
     when(() => mockAuthRepository.currentUser()).thenReturn(null);
-    when(() => mockAuthRepository.userStream()).thenAnswer((_) => Stream.empty());
+    when(
+      () => mockAuthRepository.userStream(),
+    ).thenAnswer((_) => const Stream.empty());
     when(
       () => mockAuthRepository.signInWithEmailAndPassword(
         email: any(named: 'email'),
@@ -72,7 +76,10 @@ void main() {
   testWidgets('shows invalid email message', (tester) async {
     await pumpSignInPage(tester);
 
-    await tester.enterText(find.byKey(const ValueKey('sign_in_email')), 'invalid');
+    await tester.enterText(
+      find.byKey(const ValueKey('sign_in_email')),
+      'invalid',
+    );
     await tester.enterText(
       find.byKey(const ValueKey('sign_in_password')),
       'password123',
@@ -97,15 +104,15 @@ void main() {
       find.byKey(const ValueKey('sign_in_email')),
       'tester@example.com',
     );
-    await tester.enterText(find.byKey(const ValueKey('sign_in_password')), 'short');
+    await tester.enterText(
+      find.byKey(const ValueKey('sign_in_password')),
+      'short',
+    );
 
     await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
     await tester.pumpAndSettle();
 
-    expect(
-      find.text('Password must be at least 8 characters'),
-      findsOneWidget,
-    );
+    expect(find.text('Password must be at least 8 characters'), findsOneWidget);
     verifyNever(
       () => mockAuthRepository.signInWithEmailAndPassword(
         email: any(named: 'email'),
@@ -114,7 +121,9 @@ void main() {
     );
   });
 
-  testWidgets('submits with valid values and navigates to home', (tester) async {
+  testWidgets('submits with valid values and navigates to home', (
+    tester,
+  ) async {
     await pumpSignInPage(tester);
 
     await tester.enterText(
@@ -135,7 +144,10 @@ void main() {
         password: 'password123',
       ),
     ).called(1);
-    expect(find.byWidgetPredicate((widget) => widget is HomePage), findsOneWidget);
+    expect(
+      find.byWidgetPredicate((widget) => widget is HomePage),
+      findsOneWidget,
+    );
   });
 
   testWidgets('shows snackbar when sign in fails', (tester) async {
@@ -162,5 +174,4 @@ void main() {
 
     expect(find.text('An error occurred during signing in'), findsOneWidget);
   });
-
 }

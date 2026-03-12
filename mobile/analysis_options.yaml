@@ -1,9 +1,20 @@
-include: package:flutter_lints/flutter.yaml
+include: package:very_good_analysis/analysis_options.10.2.0.yaml
 
 plugins:
   riverpod_lint: 3.1.2
 
+analyzer:
+  exclude:
+    - lib/generated_plugin_registrant.dart
+    - lib/**/*.g.dart
+    - lib/**/*.freezed.dart
+  errors:
+    invalid_annotation_target: ignore
+
 linter:
   rules:
-    prefer_single_quotes: true  
+    public_member_api_docs: false
+    discarded_futures: false
+    unreachable_from_main: false
+    close_sinks: true
 

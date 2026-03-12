@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobile/repositories/auth_repository/auth_repository.dart';
-import 'package:mobile/router/app_router.dart';
+import 'package:mobile/core/core.dart';
 import 'package:mobile/ui/authentication/pages/sign_up_page.dart';
 import 'package:mobile/ui/home/pages/home_page.dart';
 import 'package:mobile/ui/splash/pages/splash_page.dart';
@@ -32,7 +31,9 @@ void main() {
               return mockAuthRepository;
             })
           else
-            authRepositoryProvider.overrideWith((ref) async => mockAuthRepository),
+            authRepositoryProvider.overrideWith(
+              (ref) async => mockAuthRepository,
+            ),
         ],
         child: MaterialApp.router(routerConfig: router.config()),
       ),
@@ -42,7 +43,9 @@ void main() {
   setUp(() {
     mockAuthRepository = MockAuthRepository();
     router = AppRouter();
-    when(() => mockAuthRepository.userStream()).thenAnswer((_) => Stream.empty());
+    when(
+      () => mockAuthRepository.userStream(),
+    ).thenAnswer((_) => const Stream.empty());
   });
 
   testWidgets('renders splash content', (tester) async {
