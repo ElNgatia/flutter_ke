@@ -1,4 +1,6 @@
-import 'package:mobile/core/core.dart';
+
+import 'package:mobile/core/data/models/channels/channel.dart';
+import 'package:mobile/core/repositories/channel_repo/channels_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'channels_notifier_provider.g.dart';

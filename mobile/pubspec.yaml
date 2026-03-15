@@ -20,6 +20,7 @@ dependencies:
   freezed_annotation: ^3.1.0
   hooks_riverpod: ^3.3.1
   json_annotation: ^4.11.0
+  logging: ^1.2.2
   riverpod_annotation: ^4.0.2
   sqlite3: ^3.1.7
   supabase_flutter: ^2.12.0

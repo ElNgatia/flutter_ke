@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/gestures.dart';
@@ -7,7 +7,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/experimental/mutation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobile/core/core.dart';
+import 'package:mobile/core/components/custom_text_field.dart';
+import 'package:mobile/core/components/loading_indicator.dart';
+import 'package:mobile/core/providers/auth/auth_notifier_provider.dart';
+import 'package:mobile/core/repositories/auth_repo/auth_repository.dart';
+import 'package:mobile/core/router/app_router.gr.dart';
+import 'package:mobile/core/services/error_logger/error_logger.dart';
+import 'package:mobile/core/services/validator_service/validator_service.dart';
+
+final signUpMutation = Mutation<void>();
 
 @RoutePage()
 class SignUpPage extends StatelessWidget {
@@ -43,44 +51,51 @@ class SignUpForm extends HookConsumerWidget {
     final formKey = useMemoized(GlobalKey<FormState>.new);
     const minPasswordLength = 8;
 
-    ref.listen(
-      signUpMutation,
-      (_, state) {
-        switch (state) {
-          case MutationSuccess():
-            context.router.replace(const HomeRoute());
-
-          case MutationError(:final error, :final stackTrace):
-            log(
-              'Error signing up',
-              error: error,
-              stackTrace: stackTrace,
-            );
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('An error occurred during signing up'),
-              ),
-            );
-
-          default:
-            break;
-        }
-      },
-    );
-
     final signUpState = ref.watch(signUpMutation);
 
     Future<void> submit() async {
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
+      final router = context.router;
       if (formKey.currentState?.validate() ?? false) {
         TextInput.finishAutofillContext();
 
-        await ref
-            .read(signUpControllerProvider.notifier)
-            .signUp(
-              email: emailController.text.trim(),
-              password: passwordController.text.trim(),
-            );
+        return signUpMutation.run(
+          ref,
+          (tsx) async {
+            try {
+              final notifier = tsx.get(authProvider.notifier);
+              await notifier.signUpWithEmailAndPassword(
+                email: emailController.text.trim(),
+                password: passwordController.text.trim(),
+              );
+              await router.replace(const HomeRoute());
+            } on AuthRepositoryException catch (error, stackTrace) {
+              ErrorLoggerService.instance.logError(
+                error,
+                message: 'Error signing up',
+                stackTrace: stackTrace,
+              );
+              scaffoldMessenger.showSnackBar(
+                SnackBar(
+                  backgroundColor: theme.colorScheme.error,
+                  content: Text(error.message),
+                ),
+              );
+            } catch (error, stackTrace) {
+              ErrorLoggerService.instance.logError(
+                error,
+                message: 'Error signing up',
+                stackTrace: stackTrace,
+              );
+              scaffoldMessenger.showSnackBar(
+                SnackBar(
+                  backgroundColor: theme.colorScheme.error,
+                  content: const Text('An error occurred during signing up'),
+                ),
+              );
+            }
+          },
+        );
       }
     }
 
@@ -129,8 +144,7 @@ class SignUpForm extends HookConsumerWidget {
                     textInputAction: TextInputAction.next,
                     autofillHints: const [AutofillHints.newPassword],
                     obscureText: obscurePassword.value,
-                    enableSuggestions: false,
-                    autocorrect: false,
+
                     validator: (v) {
                       if (v == null || v.isEmpty) {
                         return 'Password is required';

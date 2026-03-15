@@ -1,11 +1,17 @@
-import 'dart:developer';
+import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/experimental/mutation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/core/core.dart';
-import 'package:mobile/ui/ui.dart';
+import 'package:mobile/core/components/loading_indicator.dart';
+import 'package:mobile/core/providers/providers.dart';
+import 'package:mobile/core/router/app_router.gr.dart';
+import 'package:mobile/core/services/error_logger/error_logger.dart';
+import 'package:mobile/ui/home/widgets/message_bubbles.dart';
+import 'package:mobile/ui/home/widgets/profile_image.dart';
+
+final logoutMutation = Mutation<void>();
 
 @RoutePage()
 class HomePage extends ConsumerWidget {
@@ -15,35 +21,24 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final router = context.router;
     final theme = Theme.of(context);
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-    ref.listen(
-      logoutMutation,
-      (_, state) {
-        switch (state) {
-          case MutationError(:final error, :final stackTrace):
-            log(
-              'Error signing out',
-              error: error,
-              stackTrace: stackTrace,
-            );
+    Future<void> signOut() => logoutMutation.run(ref, (tsx) async {
+      final router = context.router;
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-            scaffoldMessenger.showSnackBar(
-              const SnackBar(
-                content: Text('An error occurred during signing out'),
-              ),
-            );
-
-          case MutationSuccess():
-            router.replace(const SignInRoute());
-
-          default:
-            break;
-        }
-      },
-    );
+      try {
+        await tsx.get(authProvider.notifier).signOut();
+        await router.replace(const SignInRoute());
+      } catch (e, stackTrace) {
+        ErrorLoggerService.instance.logError(e, stackTrace: stackTrace);
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(
+            content: Text('An error occurred during signing out'),
+          ),
+        );
+      }
+    });
 
     final logoutState = ref.watch(logoutMutation);
     final channelsAsync = ref.watch(channelsProvider);
@@ -132,7 +127,7 @@ class HomePage extends ConsumerWidget {
             },
             onPressed: switch (logoutState) {
               MutationPending() => null,
-              _ => () => ref.read(logoutControllerProvider.notifier).logout(),
+              _ => signOut,
             },
           ),
         ],

@@ -1,4 +1,6 @@
-import 'package:mobile/core/core.dart';
+import 'package:mobile/core/data/models/channels/channel.dart';
+import 'package:mobile/core/data/models/channels/message.dart';
+import 'package:mobile/core/providers/supabase/supabase_client_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
