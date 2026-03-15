@@ -15,6 +15,7 @@ import 'package:mobile/services/validator_service/validator_service.dart';
 import 'package:mobile/ui/shared_widgets/custom_filled_button.dart';
 import 'package:mobile/ui/shared_widgets/custom_text_field.dart';
 import 'package:mobile/ui/shared_widgets/loading_indicator.dart';
+import 'package:mobile/ui/theme/app_spacing.dart';
 
 final _signInMutation = Mutation<void>();
 
@@ -29,7 +30,7 @@ class SignInPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Flutter Kenya')),
       body: Container(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.paddingAllBase,
         alignment: Alignment.center,
         child: const SignInForm(),
       ),
@@ -106,7 +107,7 @@ class SignInForm extends HookConsumerWidget {
             'Sign In',
             style: theme.textTheme.titleLarge?.copyWith(color: Colors.white),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: AppSpacing.xxl),
           AutofillGroup(
             child: Column(
               children: [
@@ -126,7 +127,7 @@ class SignInForm extends HookConsumerWidget {
                     return ValidatorService.emailFormatValidator(v.trim());
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.base),
                 CustomTextField(
                   controller: passwordController,
                   labelText: 'Password',
@@ -161,7 +162,7 @@ class SignInForm extends HookConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xl),
           CustomFilledButton(
             onPressed: switch (signInState) {
               MutationPending() => null,
@@ -172,7 +173,7 @@ class SignInForm extends HookConsumerWidget {
               _ => const Text('Sign in'),
             },
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xl),
           RichText(
             text: TextSpan(
               text: "Don't have an account? ",

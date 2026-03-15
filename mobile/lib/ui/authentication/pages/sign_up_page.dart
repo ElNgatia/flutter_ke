@@ -14,6 +14,7 @@ import 'package:mobile/services/error_logger/error_logger.dart';
 import 'package:mobile/services/validator_service/validator_service.dart';
 import 'package:mobile/ui/shared_widgets/custom_text_field.dart';
 import 'package:mobile/ui/shared_widgets/loading_indicator.dart';
+import 'package:mobile/ui/theme/app_spacing.dart';
 
 final signUpMutation = Mutation<void>();
 
@@ -28,7 +29,7 @@ class SignUpPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Flutter Kenya')),
       body: Container(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.paddingAllBase,
         alignment: Alignment.center,
         child: const SignUpForm(),
       ),
@@ -114,7 +115,7 @@ class SignUpForm extends HookConsumerWidget {
                 style: textTheme.titleLarge?.copyWith(color: Colors.white),
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: AppSpacing.xxl),
             AutofillGroup(
               child: Column(
                 children: [
@@ -135,7 +136,7 @@ class SignUpForm extends HookConsumerWidget {
                     },
                     fieldKey: const ValueKey('sign_up_email'),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.base),
                   CustomTextField(
                     controller: passwordController,
                     labelText: 'Password',
@@ -171,7 +172,7 @@ class SignUpForm extends HookConsumerWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.base),
                   CustomTextField(
                     controller: confirmPasswordController,
                     labelText: 'Confirm Password',
@@ -211,10 +212,10 @@ class SignUpForm extends HookConsumerWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.xl),
             SizedBox(
               width: double.infinity,
-              height: 48,
+              height: AppSpacing.buttonHeight,
               child: FilledButton(
                 style: ButtonStyle(
                   backgroundColor: WidgetStateProperty.all(
@@ -231,7 +232,7 @@ class SignUpForm extends HookConsumerWidget {
                 },
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.xl),
             Align(
               child: RichText(
                 text: TextSpan(

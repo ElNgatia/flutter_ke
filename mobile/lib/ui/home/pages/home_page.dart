@@ -16,6 +16,7 @@ import 'package:mobile/ui/home/widgets/profile_image.dart';
 import 'package:mobile/ui/shared_widgets/empty_state.dart';
 import 'package:mobile/ui/shared_widgets/error_state.dart';
 import 'package:mobile/ui/shared_widgets/loading_indicator.dart';
+import 'package:mobile/ui/theme/app_spacing.dart';
 
 final _logoutMutation = Mutation<void>();
 
@@ -71,14 +72,14 @@ class HomeAppBar extends ConsumerWidget implements PreferredSizeWidget {
       centerTitle: false,
       title: channelsAsync.when(
         loading: () => Padding(
-          padding: const EdgeInsets.only(left: 12),
+          padding: const EdgeInsets.only(left: AppSpacing.md),
           child: Text(
             'Loading channel...',
             style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white),
           ),
         ),
         error: (error, _) => const Padding(
-          padding: EdgeInsets.only(left: 12),
+          padding: EdgeInsets.only(left: AppSpacing.md),
           child: Text(
             'Channel',
             style: TextStyle(color: Colors.white),
@@ -87,7 +88,7 @@ class HomeAppBar extends ConsumerWidget implements PreferredSizeWidget {
         data: (channels) {
           if (channels.isEmpty) {
             return const Padding(
-              padding: EdgeInsets.only(left: 12),
+              padding: EdgeInsets.only(left: AppSpacing.md),
               child: Text(
                 'No Channel',
                 style: TextStyle(color: Colors.white),
@@ -99,12 +100,12 @@ class HomeAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
           return Row(
             children: [
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.md),
               ProfileImage(
                 size: 40,
                 image: channel.avatarUrl,
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,7 +119,7 @@ class HomeAppBar extends ConsumerWidget implements PreferredSizeWidget {
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: AppSpacing.xxs),
                     Text(
                       channel.description ?? '${channel.memberCount} members',
                       style: const TextStyle(
@@ -228,10 +229,7 @@ class MessagesList extends StatelessWidget {
     return ListView.builder(
       reverse: true,
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 20,
-      ),
+      padding: AppSpacing.paddingList,
       itemCount: messages.length,
       itemBuilder: (context, index) {
         final message = messages[index];
