@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/core/components/internet_image.dart';
+import 'package:mobile/ui/shared_widgets/internet_image.dart';
 
 class ProfileImage extends StatelessWidget {
   const ProfileImage({required this.size, this.image, super.key});

@@ -1,6 +1,6 @@
 
 import 'package:mobile/core/data/models/channels/message.dart';
-import 'package:mobile/core/repositories/channel_repo/channels_repository.dart';
+import 'package:mobile/repositories/channel_repo/channels_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'messages_notifier_provider.g.dart';

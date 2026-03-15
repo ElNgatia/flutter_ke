@@ -1,6 +1,6 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/core/components/loading_indicator.dart';
+import 'package:mobile/ui/shared_widgets/loading_indicator.dart';
 
 class InternetImage extends StatelessWidget {
   const InternetImage({

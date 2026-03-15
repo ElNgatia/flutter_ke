@@ -7,13 +7,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/experimental/mutation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobile/core/components/custom_text_field.dart';
-import 'package:mobile/core/components/loading_indicator.dart';
-import 'package:mobile/core/providers/auth/auth_notifier_provider.dart';
-import 'package:mobile/core/repositories/auth_repo/auth_repository.dart';
 import 'package:mobile/core/router/app_router.gr.dart';
 import 'package:mobile/core/services/error_logger/error_logger.dart';
 import 'package:mobile/core/services/validator_service/validator_service.dart';
+import 'package:mobile/providers/auth/auth_notifier_provider.dart';
+import 'package:mobile/repositories/auth_repo/auth_repository.dart';
+import 'package:mobile/ui/shared_widgets/custom_text_field.dart';
+import 'package:mobile/ui/shared_widgets/loading_indicator.dart';
 
 final signUpMutation = Mutation<void>();
 
