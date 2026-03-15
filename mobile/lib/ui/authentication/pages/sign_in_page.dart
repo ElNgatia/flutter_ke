@@ -112,6 +112,7 @@ class SignInForm extends HookConsumerWidget {
             child: Column(
               children: [
                 CustomTextField(
+                  fieldKey: const ValueKey('sign_in_email'),
                   controller: emailController,
                   labelText: 'Email',
                   hintText: 'example@gmail.com',
@@ -129,6 +130,7 @@ class SignInForm extends HookConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.base),
                 CustomTextField(
+                  fieldKey: const ValueKey('sign_in_password'),
                   controller: passwordController,
                   labelText: 'Password',
                   hintText: '********',
