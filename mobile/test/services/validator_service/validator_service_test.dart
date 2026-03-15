@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile/core/services/validator_service/validator_service.dart';
+import 'package:mobile/services/validator_service/validator_service.dart';
 
 void main() {
   group('validator service tests ...', () {

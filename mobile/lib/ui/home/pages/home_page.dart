@@ -4,14 +4,17 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/experimental/mutation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/core/data/models/channels/message.dart';
-import 'package:mobile/core/router/app_router.gr.dart';
-import 'package:mobile/core/services/error_logger/error_logger.dart';
+import 'package:mobile/models/channels/message.dart';
 import 'package:mobile/providers/auth/auth_notifier_provider.dart';
 import 'package:mobile/providers/channels/channels_notifier_provider.dart';
 import 'package:mobile/providers/channels/messages_notifier_provider.dart';
+import 'package:mobile/router/app_router.gr.dart';
+import 'package:mobile/services/error_logger/error_logger.dart';
 import 'package:mobile/ui/home/widgets/message_bubble.dart';
+import 'package:mobile/ui/home/widgets/message_input_bar.dart';
 import 'package:mobile/ui/home/widgets/profile_image.dart';
+import 'package:mobile/ui/shared_widgets/empty_state.dart';
+import 'package:mobile/ui/shared_widgets/error_state.dart';
 import 'package:mobile/ui/shared_widgets/loading_indicator.dart';
 
 final _logoutMutation = Mutation<void>();
@@ -45,21 +48,21 @@ class HomeAppBar extends ConsumerWidget implements PreferredSizeWidget {
     final logoutState = ref.watch(_logoutMutation);
 
     Future<void> signOut() => _logoutMutation.run(ref, (tsx) async {
-          final router = context.router;
-          final scaffoldMessenger = ScaffoldMessenger.of(context);
+      final router = context.router;
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-          try {
-            await tsx.get(authProvider.notifier).signOut();
-            await router.replaceAll([const SignInRoute()]);
-          } catch (e, stackTrace) {
-            ErrorLoggerService.instance.logError(e, stackTrace: stackTrace);
-            scaffoldMessenger.showSnackBar(
-              const SnackBar(
-                content: Text('An error occurred during signing out'),
-              ),
-            );
-          }
-        });
+      try {
+        await tsx.get(authProvider.notifier).signOut();
+        await router.replaceAll([const SignInRoute()]);
+      } catch (e, stackTrace) {
+        ErrorLoggerService.instance.logError(e, stackTrace: stackTrace);
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(
+            content: Text('An error occurred during signing out'),
+          ),
+        );
+      }
+    });
 
     return AppBar(
       backgroundColor: const Color(0xff15112b),
@@ -148,42 +151,33 @@ class HomeAppBar extends ConsumerWidget implements PreferredSizeWidget {
   }
 }
 
-class ErrorState extends StatelessWidget {
-  const ErrorState({required this.message, super.key});
-
-  final Widget message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(child: message);
-  }
-}
-
-class EmptyState extends StatelessWidget {
-  const EmptyState({
-    required this.message,
-    this.asset,
+class ChannelMessages extends ConsumerWidget {
+  const ChannelMessages({
+    required this.channelId,
     super.key,
   });
 
-  final Widget message;
-  final Widget? asset;
+  final String channelId;
 
   @override
-  Widget build(BuildContext context) {
-    if (asset == null) {
-      return Center(child: message);
-    }
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          asset!,
-          const SizedBox(height: 16),
-          message,
-        ],
-      ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final messagesAsync = ref.watch(messagesProvider(channelId));
+    final errorText = Text(
+      'Failed to load messages',
+      style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white),
     );
+    final emptyText = Text(
+      'No messages',
+      style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white),
+    );
+
+    return switch (messagesAsync) {
+      AsyncData(value: []) => EmptyState(message: emptyText),
+      AsyncData(value: final messages) => MessagesList(messages: messages),
+      AsyncError() => ErrorState(message: errorText),
+      _ => const Center(child: LoadingIndicator()),
+    };
   }
 }
 
@@ -195,7 +189,7 @@ class ChannelsBody extends ConsumerWidget {
     final theme = Theme.of(context);
     final channelsAsync = ref.watch(channelsProvider);
     final errorText = Text(
-      'Failed to load messages',
+      'Failed to load channel',
       style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white),
     );
     final emptyText = Text(
@@ -206,39 +200,16 @@ class ChannelsBody extends ConsumerWidget {
     return Column(
       children: [
         Expanded(
-          child: channelsAsync.when(
-            loading: () => const Center(
-              child: LoadingIndicator(),
+          child: switch (channelsAsync) {
+            AsyncData(value: []) => EmptyState(message: emptyText),
+            AsyncData(value: [final channel, ...]) => ChannelMessages(
+              channelId: channel.id,
             ),
-            error: (_, _) => ErrorState(message: errorText),
-            data: (channels) {
-              if (channels.isEmpty) {
-                return EmptyState(message: emptyText);
-              }
-              final channel = channels.first;
-              final messagesAsync = ref.watch(
-                messagesProvider(channel.id),
-              );
-
-              return messagesAsync.when(
-                loading: () => const Center(
-                  child: LoadingIndicator(),
-                ),
-                error: (_, _) => ErrorState(message: errorText),
-                data: (messages) {
-                  if (messages.isEmpty) {
-                    return EmptyState(message: emptyText);
-                  }
-                  return MessagesList(messages: messages);
-                },
-              );
-            },
-          ),
+            AsyncError() => ErrorState(message: errorText),
+            _ => const Center(child: LoadingIndicator()),
+          },
         ),
-        Container(
-          height: 30,
-          color: const Color(0xff15112b),
-        ),
+        const MessageInputBar(),
       ],
     );
   }
@@ -267,7 +238,7 @@ class MessagesList extends StatelessWidget {
         return MessageBubble(
           sender: 'Admin',
           text: message.content ?? '',
-          isMe: false,
+          isMe: true,
         );
       },
     );

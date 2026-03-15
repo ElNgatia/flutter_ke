@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobile/core/router/app_router.dart';
-import 'package:mobile/core/router/app_router.gr.dart';
 import 'package:mobile/repositories/auth_repo/auth_repository.dart';
+import 'package:mobile/router/app_router.dart';
+import 'package:mobile/router/app_router.gr.dart';
 import 'package:mobile/ui/home/pages/home_page.dart';
 import 'package:mocktail/mocktail.dart';
 
