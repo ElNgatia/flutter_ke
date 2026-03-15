@@ -1,14 +1,23 @@
-import 'dart:developer';
+import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/experimental/mutation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobile/core/core.dart';
+import 'package:mobile/providers/auth/auth_notifier_provider.dart';
+import 'package:mobile/repositories/auth_repo/auth_repository.dart';
+import 'package:mobile/router/app_router.gr.dart';
+import 'package:mobile/services/error_logger/error_logger.dart';
+import 'package:mobile/services/validator_service/validator_service.dart';
+import 'package:mobile/ui/shared_widgets/custom_filled_button.dart';
+import 'package:mobile/ui/shared_widgets/custom_text_field.dart';
+import 'package:mobile/ui/shared_widgets/loading_indicator.dart';
+import 'package:mobile/ui/theme/app_spacing.dart';
+
+final _signInMutation = Mutation<void>();
 
 @RoutePage()
 class SignInPage extends StatelessWidget {
@@ -21,7 +30,7 @@ class SignInPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Flutter Kenya')),
       body: Container(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.paddingAllBase,
         alignment: Alignment.center,
         child: const SignInForm(),
       ),
@@ -36,51 +45,56 @@ class SignInForm extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final obscurePassword = useState(true);
-    final emailController = useTextEditingController(
-      text: kDebugMode ? 'denzelgatugu@gmail.com' : '',
-    );
+    final emailController = useTextEditingController();
     final passwordController = useTextEditingController();
     final formKey = useMemoized(GlobalKey<FormState>.new);
     const minPasswordLength = 8;
 
-    ref.listen(
-      signInMutation,
-      (_, state) {
-        switch (state) {
-          case MutationSuccess():
-            context.router.replace(const HomeRoute());
-
-          case MutationError(:final error, :final stackTrace):
-            log(
-              'Error signing in',
-              error: error,
-              stackTrace: stackTrace,
-            );
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('An error occurred during signing in'),
-              ),
-            );
-
-          default:
-            break;
-        }
-      },
-    );
-
-    final signInState = ref.watch(signInMutation);
+    final signInState = ref.watch(_signInMutation);
 
     Future<void> submit() async {
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
+      final router = context.router;
       if (formKey.currentState?.validate() ?? false) {
         TextInput.finishAutofillContext();
 
-        await ref
-            .read(signInControllerProvider.notifier)
-            .signIn(
-              email: emailController.text.trim(),
-              password: passwordController.text.trim(),
-            );
+        return _signInMutation.run(
+          ref,
+          (tsx) async {
+            try {
+              final notifier = tsx.get(authProvider.notifier);
+              await notifier.signInWithEmailAndPassword(
+                email: emailController.text.trim(),
+                password: passwordController.text.trim(),
+              );
+              await router.replaceAll([const HomeRoute()]);
+            } on AuthRepositoryException catch (error, stackTrace) {
+              ErrorLoggerService.instance.logError(
+                error,
+                message: 'Error signing in',
+                stackTrace: stackTrace,
+              );
+              scaffoldMessenger.showSnackBar(
+                SnackBar(
+                  backgroundColor: theme.colorScheme.error,
+                  content: Text(error.message),
+                ),
+              );
+            } catch (error, stackTrace) {
+              ErrorLoggerService.instance.logError(
+                error,
+                message: 'Error signing in',
+                stackTrace: stackTrace,
+              );
+              scaffoldMessenger.showSnackBar(
+                SnackBar(
+                  backgroundColor: theme.colorScheme.error,
+                  content: const Text('An error occurred during signing in'),
+                ),
+              );
+            }
+          },
+        );
       }
     }
 
@@ -93,7 +107,7 @@ class SignInForm extends HookConsumerWidget {
             'Sign In',
             style: theme.textTheme.titleLarge?.copyWith(color: Colors.white),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: AppSpacing.xxl),
           AutofillGroup(
             child: Column(
               children: [
@@ -102,6 +116,10 @@ class SignInForm extends HookConsumerWidget {
                   labelText: 'Email',
                   hintText: 'example@gmail.com',
                   keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  autofillHints: const [AutofillHints.email],
+                  enableSuggestions: false,
+                  autocorrect: false,
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) {
                       return 'Email is required';
@@ -109,12 +127,14 @@ class SignInForm extends HookConsumerWidget {
                     return ValidatorService.emailFormatValidator(v.trim());
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.base),
                 CustomTextField(
                   controller: passwordController,
                   labelText: 'Password',
                   hintText: '********',
                   obscureText: obscurePassword.value,
+                  textInputAction: TextInputAction.done,
+                  autofillHints: const [AutofillHints.password],
                   validator: (v) {
                     if (v == null || v.isEmpty) {
                       return 'Password is required';
@@ -124,6 +144,10 @@ class SignInForm extends HookConsumerWidget {
                           'characters';
                     }
                     return null;
+                  },
+                  onFieldSubmitted: switch (signInState) {
+                    MutationPending() => null,
+                    _ => (_) => submit(),
                   },
                   suffixIcon: IconButton(
                     onPressed: () =>
@@ -138,7 +162,7 @@ class SignInForm extends HookConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xl),
           CustomFilledButton(
             onPressed: switch (signInState) {
               MutationPending() => null,
@@ -149,7 +173,7 @@ class SignInForm extends HookConsumerWidget {
               _ => const Text('Sign in'),
             },
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xl),
           RichText(
             text: TextSpan(
               text: "Don't have an account? ",
