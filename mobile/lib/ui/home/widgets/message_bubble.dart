@@ -14,6 +14,7 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Column(
@@ -23,9 +24,9 @@ class MessageBubble extends StatelessWidget {
         children: <Widget>[
           Text(
             sender,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: Colors.purpleAccent,
+              color: theme.colorScheme.tertiary,
             ),
           ),
           const SizedBox(height: 5),
@@ -42,13 +43,15 @@ class MessageBubble extends StatelessWidget {
                     topRight: Radius.circular(30),
                   ),
             elevation: 5,
-            color: isMe ? Colors.blue : Colors.deepPurpleAccent,
+            color: isMe
+                ? theme.colorScheme.primary
+                : theme.colorScheme.tertiary,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
               child: Text(
                 text,
                 style: const TextStyle(
-                  color:  Colors.white,
+                  color: Colors.white,
                   fontSize: 15,
                 ),
               ),

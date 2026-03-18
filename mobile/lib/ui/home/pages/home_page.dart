@@ -28,10 +28,11 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return const Scaffold(
-      backgroundColor: Color(0xff15112b),
-      appBar: HomeAppBar(),
-      body: ChannelsBody(),
+    final theme = Theme.of(context);
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      appBar: const HomeAppBar(),
+      body: const ChannelsBody(),
     );
   }
 }
@@ -66,7 +67,7 @@ class HomeAppBar extends ConsumerWidget implements PreferredSizeWidget {
     });
 
     return AppBar(
-      backgroundColor: const Color(0xff15112b),
+      backgroundColor: theme.scaffoldBackgroundColor,
       elevation: 5,
       titleSpacing: 0,
       centerTitle: false,

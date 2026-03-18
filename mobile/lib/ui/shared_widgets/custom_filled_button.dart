@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/ui/theme/app_spacing.dart';
 
 class CustomFilledButton extends StatelessWidget {
   const CustomFilledButton({
@@ -12,15 +13,13 @@ class CustomFilledButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return SizedBox(
       width: double.infinity,
-      height: 48,
+      height: AppSpacing.buttonHeight,
       child: FilledButton(
-        style: ButtonStyle(
-          backgroundColor: WidgetStateProperty.all(
-            Colors.deepPurpleAccent,
-          ),
-        ),
+        style: theme.filledButtonTheme.style,
         onPressed: onPressed,
         child: child,
       ),

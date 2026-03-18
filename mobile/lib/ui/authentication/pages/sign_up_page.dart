@@ -12,6 +12,7 @@ import 'package:mobile/repositories/auth_repo/auth_repository.dart';
 import 'package:mobile/router/app_router.gr.dart';
 import 'package:mobile/services/error_logger/error_logger.dart';
 import 'package:mobile/services/validator_service/validator_service.dart';
+import 'package:mobile/ui/shared_widgets/custom_filled_button.dart';
 import 'package:mobile/ui/shared_widgets/custom_text_field.dart';
 import 'package:mobile/ui/shared_widgets/loading_indicator.dart';
 import 'package:mobile/ui/theme/app_spacing.dart';
@@ -213,24 +214,15 @@ class SignUpForm extends HookConsumerWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.xl),
-            SizedBox(
-              width: double.infinity,
-              height: AppSpacing.buttonHeight,
-              child: FilledButton(
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(
-                    Colors.deepPurpleAccent,
-                  ),
-                ),
-                onPressed: switch (signUpState) {
-                  MutationPending() => null,
-                  _ => submit,
-                },
-                child: switch (signUpState) {
-                  MutationPending() => const LoadingIndicator(),
-                  _ => const Text('Sign up'),
-                },
-              ),
+            CustomFilledButton(
+              onPressed: switch (signUpState) {
+                MutationPending() => null,
+                _ => submit,
+              },
+              child: switch (signUpState) {
+                MutationPending() => const LoadingIndicator(),
+                _ => const Text('Sign up'),
+              },
             ),
             const SizedBox(height: AppSpacing.xl),
             Align(
