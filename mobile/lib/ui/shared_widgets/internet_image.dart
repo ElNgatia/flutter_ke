@@ -26,10 +26,10 @@ class InternetImage extends StatelessWidget {
         return switch (state.extendedImageLoadState) {
           .completed => state.completedWidget,
           .failed => const Icon(
-              Icons.image_not_supported_rounded,
-              color: Colors.grey,
-            ),
-          .loading => const LoadingIndicator()
+            Icons.image_not_supported_rounded,
+            color: Colors.grey,
+          ),
+          .loading => const LoadingIndicator(),
         };
       },
     );
