@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart' show LinkPreviewData;
+import 'package:flutter_link_previewer/flutter_link_previewer.dart';
+import 'package:mobile/services/validator_service/validator_service.dart';
+import 'package:mobile/ui/shared_widgets/internet_image.dart';
 
-class MessageBubble extends StatelessWidget {
+class MessageBubble extends StatefulWidget {
   const MessageBubble({
     required this.sender,
     required this.text,
@@ -13,17 +17,29 @@ class MessageBubble extends StatelessWidget {
   final bool isMe;
 
   @override
+  State<MessageBubble> createState() => _MessageBubbleState();
+}
+
+class _MessageBubbleState extends State<MessageBubble> {
+  LinkPreviewData? _linkPreviewData;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    final bubbleColor = widget.isMe
+        ? theme.colorScheme.primary
+        : theme.colorScheme.tertiary;
+
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Column(
-        crossAxisAlignment: isMe
+        crossAxisAlignment: widget.isMe
             ? CrossAxisAlignment.end
             : CrossAxisAlignment.start,
-        children: <Widget>[
+        children: [
           Text(
-            sender,
+            widget.sender,
             style: TextStyle(
               fontSize: 12,
               color: theme.colorScheme.tertiary,
@@ -31,7 +47,7 @@ class MessageBubble extends StatelessWidget {
           ),
           const SizedBox(height: 5),
           Material(
-            borderRadius: isMe
+            borderRadius: widget.isMe
                 ? const BorderRadius.only(
                     topLeft: Radius.circular(30),
                     bottomLeft: Radius.circular(30),
@@ -43,17 +59,56 @@ class MessageBubble extends StatelessWidget {
                     topRight: Radius.circular(30),
                   ),
             elevation: 5,
-            color: isMe
-                ? theme.colorScheme.primary
-                : theme.colorScheme.tertiary,
+            color: bubbleColor,
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              child: Text(
-                text,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                ),
+              padding: const EdgeInsets.symmetric(
+                vertical: 10,
+                horizontal: 20,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.text,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                    ),
+                  ),
+                  if (ValidatorService.containsLink(widget.text))
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: LinkPreview(
+                        text: widget.text,
+                        linkPreviewData: _linkPreviewData,
+                        onLinkPreviewDataFetched: (data) {
+                          setState(() => _linkPreviewData = data);
+                        },
+                        imageBuilder: (imageUrl) {
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: InternetImage(
+                              imageUrl: imageUrl,
+                              width: double.infinity,
+                              height: 160,
+                              shape: BoxShape.rectangle,
+                            ),
+                          );
+                        },
+                        maxWidth: MediaQuery.of(context).size.width * 0.7,
+                        backgroundColor: bubbleColor.withValues(alpha: 0.9),
+                        borderRadius: 16,
+                        titleTextStyle: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        descriptionTextStyle: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
