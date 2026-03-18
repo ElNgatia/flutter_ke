@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' show LinkPreviewData;
 import 'package:flutter_link_previewer/flutter_link_previewer.dart';
+import 'package:mobile/services/helper_service/helper_service.dart';
 import 'package:mobile/services/validator_service/validator_service.dart';
 import 'package:mobile/ui/shared_widgets/internet_image.dart';
 import 'package:mobile/ui/theme/app_spacing.dart';
@@ -81,7 +82,7 @@ class _MessageBubbleState extends State<MessageBubble> {
                     Padding(
                       padding: const EdgeInsets.only(top: AppSpacing.md),
                       child: LinkPreview(
-                        onTap: (link) {},
+                        onTap: HelperService.launchInApp,
                         text: widget.text,
                         linkPreviewData: _linkPreviewData,
                         onLinkPreviewDataFetched: (data) {
