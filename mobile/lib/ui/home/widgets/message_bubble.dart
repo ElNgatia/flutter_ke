@@ -3,6 +3,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart' show LinkPreviewData;
 import 'package:flutter_link_previewer/flutter_link_previewer.dart';
 import 'package:mobile/services/validator_service/validator_service.dart';
 import 'package:mobile/ui/shared_widgets/internet_image.dart';
+import 'package:mobile/ui/theme/app_spacing.dart';
 
 class MessageBubble extends StatefulWidget {
   const MessageBubble({
@@ -26,13 +27,14 @@ class _MessageBubbleState extends State<MessageBubble> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final size = MediaQuery.sizeOf(context);
 
     final bubbleColor = widget.isMe
         ? theme.colorScheme.primary
         : theme.colorScheme.tertiary;
 
     return Padding(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: widget.isMe
             ? CrossAxisAlignment.end
@@ -62,8 +64,8 @@ class _MessageBubbleState extends State<MessageBubble> {
             color: bubbleColor,
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                vertical: 10,
-                horizontal: 20,
+                vertical: AppSpacing.md,
+                horizontal: AppSpacing.lg,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,8 +79,9 @@ class _MessageBubbleState extends State<MessageBubble> {
                   ),
                   if (ValidatorService.containsLink(widget.text))
                     Padding(
-                      padding: const EdgeInsets.only(top: 10),
+                      padding: const EdgeInsets.only(top: AppSpacing.md),
                       child: LinkPreview(
+                        onTap: (link) {},
                         text: widget.text,
                         linkPreviewData: _linkPreviewData,
                         onLinkPreviewDataFetched: (data) {
@@ -86,7 +89,7 @@ class _MessageBubbleState extends State<MessageBubble> {
                         },
                         imageBuilder: (imageUrl) {
                           return ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(AppSpacing.md),
                             child: InternetImage(
                               imageUrl: imageUrl,
                               width: double.infinity,
@@ -95,9 +98,9 @@ class _MessageBubbleState extends State<MessageBubble> {
                             ),
                           );
                         },
-                        maxWidth: MediaQuery.of(context).size.width * 0.7,
+                        maxWidth: size.width * 0.7,
                         backgroundColor: bubbleColor.withValues(alpha: 0.9),
-                        borderRadius: 16,
+                        borderRadius: AppSpacing.base,
                         titleTextStyle: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
