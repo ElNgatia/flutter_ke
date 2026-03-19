@@ -23,4 +23,9 @@ abstract class ValidatorService {
     );
     return urlRegex.hasMatch(text);
   }
+
+  static String? extractUrl(String text) {
+    final match = RegExp(r'(https?:\/\/[^\s]+)').firstMatch(text);
+    return match?.group(0);
+  }
 }

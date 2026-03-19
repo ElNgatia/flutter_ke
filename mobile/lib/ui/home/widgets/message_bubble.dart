@@ -1,12 +1,10 @@
+import 'package:any_link_preview/any_link_preview.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_core/flutter_chat_core.dart' show LinkPreviewData;
-import 'package:flutter_link_previewer/flutter_link_previewer.dart';
 import 'package:mobile/services/helper_service/helper_service.dart';
 import 'package:mobile/services/validator_service/validator_service.dart';
-import 'package:mobile/ui/shared_widgets/internet_image.dart';
 import 'package:mobile/ui/theme/app_spacing.dart';
 
-class MessageBubble extends StatefulWidget {
+class MessageBubble extends StatelessWidget {
   const MessageBubble({
     required this.sender,
     required this.text,
@@ -19,30 +17,24 @@ class MessageBubble extends StatefulWidget {
   final bool isMe;
 
   @override
-  State<MessageBubble> createState() => _MessageBubbleState();
-}
-
-class _MessageBubbleState extends State<MessageBubble> {
-  LinkPreviewData? _linkPreviewData;
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final size = MediaQuery.sizeOf(context);
+    final url = ValidatorService.extractUrl(text);
 
-    final bubbleColor = widget.isMe
+    final bubbleColor = isMe
         ? theme.colorScheme.primary
         : theme.colorScheme.tertiary;
 
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
-        crossAxisAlignment: widget.isMe
+        crossAxisAlignment: isMe
             ? CrossAxisAlignment.end
             : CrossAxisAlignment.start,
         children: [
           Text(
-            widget.sender,
+            sender,
             style: TextStyle(
               fontSize: 12,
               color: theme.colorScheme.tertiary,
@@ -50,7 +42,7 @@ class _MessageBubbleState extends State<MessageBubble> {
           ),
           const SizedBox(height: 5),
           Material(
-            borderRadius: widget.isMe
+            borderRadius: isMe
                 ? const BorderRadius.only(
                     topLeft: Radius.circular(30),
                     bottomLeft: Radius.circular(30),
@@ -72,44 +64,34 @@ class _MessageBubbleState extends State<MessageBubble> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.text,
+                    text,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 15,
                     ),
                   ),
-                  if (ValidatorService.containsLink(widget.text))
+                  if (ValidatorService.containsLink(text) && url != null)
                     Padding(
-                      padding: const EdgeInsets.only(top: AppSpacing.md),
-                      child: LinkPreview(
-                        onTap: HelperService.launchURL,
-                        text: widget.text,
-                        linkPreviewData: _linkPreviewData,
-                        onLinkPreviewDataFetched: (data) {
-                          setState(() => _linkPreviewData = data);
-                        },
-                        imageBuilder: (imageUrl) {
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(AppSpacing.md),
-                            child: InternetImage(
-                              imageUrl: imageUrl,
-                              width: double.infinity,
-                              height: 160,
-                              shape: BoxShape.rectangle,
-                            ),
-                          );
-                        },
-                        maxWidth: size.width * 0.7,
-                        backgroundColor: bubbleColor.withValues(alpha: 0.9),
-                        borderRadius: AppSpacing.base,
-                        titleTextStyle: const TextStyle(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: AnyLinkPreview(
+                        onTap: () => HelperService.launchURL(url),
+                        link: url,
+                        previewHeight: size.height * .1,
+                        displayDirection: .uiDirectionHorizontal,
+                        titleStyle: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
-                        descriptionTextStyle: const TextStyle(
+                        bodyStyle: const TextStyle(
                           color: Colors.white70,
                           fontSize: 12,
                         ),
+                        backgroundColor: bubbleColor.withValues(alpha: 0.9),
+                        borderRadius: AppSpacing.base,
+                        removeElevation: true,
+                        cache: const Duration(days: 7),
+                        errorWidget: const SizedBox.shrink(),
+                        placeholderWidget: const SizedBox.shrink(),
                       ),
                     ),
                 ],
