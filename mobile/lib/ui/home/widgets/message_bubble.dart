@@ -82,7 +82,7 @@ class _MessageBubbleState extends State<MessageBubble> {
                     Padding(
                       padding: const EdgeInsets.only(top: AppSpacing.md),
                       child: LinkPreview(
-                        onTap: HelperService.launchInApp,
+                        onTap: HelperService.launchURL,
                         text: widget.text,
                         linkPreviewData: _linkPreviewData,
                         onLinkPreviewDataFetched: (data) {
