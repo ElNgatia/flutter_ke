@@ -5,13 +5,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class MessageInputBar extends HookConsumerWidget {
   const MessageInputBar({super.key});
 
-  static const _inputBackground = Color(0xff1e1836);
   static const _hintColor = Color(0xff6b6580);
   static const Color _textColor = Colors.white;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final focusNode = useFocusNode();
+    final theme = Theme.of(context);
 
     return Container(
       padding: const EdgeInsets.only(
@@ -24,7 +24,7 @@ class MessageInputBar extends HookConsumerWidget {
         top: false,
         child: Container(
           decoration: BoxDecoration(
-            color: _inputBackground,
+            color: theme.scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
               color: const Color(0xff2d2640),
@@ -45,14 +45,14 @@ class MessageInputBar extends HookConsumerWidget {
                   color: _hintColor,
                 ),
                 suffixIconColor: focusNode.hasFocus
-                    ? Colors.deepPurpleAccent
+                    ? theme.colorScheme.tertiary
                     : _hintColor,
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 14,
                 ),
-            
+
                 suffixIcon: SizedBox.square(
                   dimension: 24,
                   child: InkWell(

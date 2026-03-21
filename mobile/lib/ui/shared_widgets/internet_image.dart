@@ -7,12 +7,14 @@ class InternetImage extends StatelessWidget {
     required this.imageUrl,
     this.height,
     this.width,
+    this.shape = BoxShape.circle,
     super.key,
   });
 
   final String imageUrl;
   final double? height;
   final double? width;
+  final BoxShape? shape;
 
   @override
   Widget build(BuildContext context) {
@@ -21,15 +23,15 @@ class InternetImage extends StatelessWidget {
       height: height,
       imageUrl,
       fit: BoxFit.cover,
-      shape: BoxShape.circle,
+      shape: shape,
       loadStateChanged: (state) {
         return switch (state.extendedImageLoadState) {
           .completed => state.completedWidget,
           .failed => const Icon(
-              Icons.image_not_supported_rounded,
-              color: Colors.grey,
-            ),
-          .loading => const LoadingIndicator()
+            Icons.image_not_supported_rounded,
+            color: Colors.grey,
+          ),
+          .loading => const LoadingIndicator(),
         };
       },
     );

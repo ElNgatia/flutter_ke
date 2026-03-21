@@ -15,4 +15,17 @@ abstract class ValidatorService {
 
     return null; // null means validation passed
   }
+
+  static bool containsLink(String text) {
+    final urlRegex = RegExp(
+      r'(https?:\/\/[^\s]+)',
+      caseSensitive: false,
+    );
+    return urlRegex.hasMatch(text);
+  }
+
+  static String? extractUrl(String text) {
+    final match = RegExp(r'(https?:\/\/[^\s]+)').firstMatch(text);
+    return match?.group(0);
+  }
 }

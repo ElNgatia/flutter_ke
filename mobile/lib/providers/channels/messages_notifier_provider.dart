@@ -1,4 +1,3 @@
-
 import 'package:mobile/models/channels/message.dart';
 import 'package:mobile/repositories/channel_repo/channels_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

@@ -47,6 +47,7 @@ abstract final class AppTheme {
       drawerIndicatorRadius: 4,
       drawerIndicatorSchemeColor: SchemeColor.primaryContainer,
       navigationRailUseIndicator: true,
+      filledButtonSchemeColor: SchemeColor.tertiary,
     ),
     // Direct ThemeData properties.
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
@@ -61,6 +62,7 @@ abstract final class AppTheme {
     colors: FlexSchemeColor.from(
       primary: const Color(0xFF1145A4),
       secondary: const Color(0xFFB61D1D),
+      tertiary: Colors.deepPurpleAccent,
       brightness: Brightness.light,
       swapOnMaterial3: true,
     ).defaultError.toDark(30, true),
@@ -83,6 +85,7 @@ abstract final class AppTheme {
       drawerIndicatorRadius: 4,
       drawerIndicatorSchemeColor: SchemeColor.primaryContainer,
       navigationRailUseIndicator: true,
+      filledButtonSchemeColor: SchemeColor.tertiary,
     ),
     // Direct ThemeData properties.
     visualDensity: FlexColorScheme.comfortablePlatformDensity,

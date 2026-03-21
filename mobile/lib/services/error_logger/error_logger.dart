@@ -1,6 +1,5 @@
 import 'package:logging/logging.dart';
 
-
 /// In future, can be extended to use Sentry or other services in production.
 class ErrorLoggerService {
   ErrorLoggerService._() {
