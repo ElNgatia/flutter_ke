@@ -1,31 +1,52 @@
+import 'dart:async';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/providers/supabase/supabase_client_provider.dart';
+import 'package:mobile/firebase_options.dart';
 import 'package:mobile/router/app_router.dart';
-import 'package:mobile/ui/theme/app_theme.dart';
+import 'package:mobile/services/error_logger/error_logger.dart';
+import 'package:mobile/ui/app/pages/my_app.dart';
 
 Future<void> main() async {
-  await dotenv.load();
+  await runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(const ProviderScope(child: MyApp()));
-}
+      await dotenv.load();
 
-final _appRouter = AppRouter();
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
 
-class MyApp extends ConsumerWidget {
-  const MyApp({super.key});
+      final appRouter = AppRouter();
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(supabaseClientProvider);
+      runApp(
+        ProviderScope(
+          child: MyApp(appRouter: appRouter),
+        ),
+      );
+    },
+    (error, stackTrace) {
+      if (kDebugMode) {
+        ErrorLoggerService.instance.logError(
+          error,
+          message: 'Error in main:runZonedGuarded',
+          stackTrace: stackTrace,
+        );
+      } else {
+        FlutterError.onError = (errorDetails) {
+          FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+        };
 
-    return MaterialApp.router(
-      routerConfig: _appRouter.config(),
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
-      title: 'Flutter Kenya',
-      debugShowCheckedModeBanner: false,
-    );
-  }
+        PlatformDispatcher.instance.onError = (error, stack) {
+          FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+          return true;
+        };
+      }
+    },
+  );
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "882800019343",
+    "project_id": "flutterkenya",
+    "storage_bucket": "flutterkenya.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:882800019343:android:8f17e65619fe2a6eb62dfa",
+        "android_client_info": {
+          "package_name": "com.flutternairobi.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlZ9juNuB677OuZgr50tlDE1M41fvp-iY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
